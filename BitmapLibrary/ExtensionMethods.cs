@@ -1,13 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace BitmapLibrary
 {
    public static class ExtensionMethods
    {
+      /// <summary>
+      /// A utlity method to allows parallel processing on a list of integers with a step size > 1
+      /// </summary>
+      /// <param name="fromInclusive">The first element of the list, inclusive</param>
+      /// <param name="toExclusive">The last element of the list, exclusive</param>
+      /// <param name="step">The step between each element in the list</param>
+      /// <returns>The next element in the list being enumerated over</returns>
+      public static IEnumerable<int> SteppedRange( int fromInclusive, int toExclusive, int step )
+      {
+         for ( var i = fromInclusive; i < toExclusive; i += step )
+         {
+            yield return i;
+         }
+      }
+
       /// <summary>
       /// Extension method for WriteableBitmap that saves the bitmap to a file
       /// </summary>

@@ -149,9 +149,9 @@ namespace BitmapLibrary
          {
             for ( int height = bitmapHeight - 1; height > 15; height -= 15 )
             {
-               Parallel.ForEach( SteppedRange( 0, bitmapWidth - width, bitmapWidth / 45 ), column =>
+               Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapWidth - width, bitmapWidth / 45 ), column =>
                {
-                  Parallel.ForEach( SteppedRange( 0, bitmapHeight - height, bitmapHeight / 45 ), row =>
+                  Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapHeight - height, bitmapHeight / 45 ), row =>
                   {
                      var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
                      var colorBins = GetColorBins( croppedPixelArray, true );
@@ -215,21 +215,6 @@ namespace BitmapLibrary
          }
 
          return difference;
-      }
-
-      /// <summary>
-      /// A utlity method to allows parallel processing on a list of integers with a step size > 1
-      /// </summary>
-      /// <param name="fromInclusive">The first element of the list, inclusive</param>
-      /// <param name="toExclusive">The last element of the list, exclusive</param>
-      /// <param name="step">The step between each element in the list</param>
-      /// <returns>The next element in the list being enumerated over</returns>
-      public static IEnumerable<int> SteppedRange( int fromInclusive, int toExclusive, int step )
-      {
-         for ( var i = fromInclusive; i < toExclusive; i += step )
-         {
-            yield return i;
-         }
       }
 
       public static Rect MergeSignificantIntersections( Rect rect, List<Rect> otherRects )

@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
@@ -51,6 +56,82 @@ namespace FoodClassifier
          properFormatBitmap.EndInit();
 
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
+
+         var classifications = ClassifyBitmap( writeableBitmap );
+      }
+
+      private static List<bool> ClassifyBitmap( WriteableBitmap bitmap )
+      {
+         // Let's pick 7 items to classify
+         var classifications = new List<bool>
+         {
+            false, // food 1
+            false, // food 2
+            false, // food 3
+            false, // food 4
+            false, // food 5
+            false, // food 6
+            false  // food 7
+         };
+
+         int stride = ( bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7 ) / 8;
+
+         byte[] pixelArray = new byte[bitmap.PixelHeight * stride];
+         bitmap.CopyPixels( pixelArray, stride, 0 );
+
+         int bitmapWidth = bitmap.PixelWidth;
+         int bitmapHeight = bitmap.PixelHeight;
+
+         // Moving window to brute force search the image
+         // May need to adjust increments to increase accuracy
+         var classificationLock = new object();
+         for ( int width = bitmapWidth - 1; width > 15; width -= 15 )
+         {
+            for ( int height = bitmapHeight - 1; height > 15; height -= 15 )
+            {
+               Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapWidth - width, bitmapWidth / 45 ), column =>
+               {
+                  Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapHeight - height, bitmapHeight / 45 ), row =>
+                  {
+                     for ( int i = 0; i < classifications.Count(); i++ )
+                     {
+                        // If we have not already identified this image as that object
+                        // see if we can classify it with this window
+                        if ( !classifications[i] )
+                        {
+                           var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
+                           bool classification = WeakClassifier( croppedPixelArray ) &&
+                                                 MediumClassifier( croppedPixelArray ) &&
+                                                 StrongClassifier( croppedPixelArray );
+                           if ( classification )
+                           {
+                              lock ( classificationLock )
+                              {
+                                 classifications[i] = true;
+                              }
+                           }
+                        }
+                     }
+                  } );
+               } );
+            }
+         }
+         return classifications;
+      }
+
+      private static bool WeakClassifier( byte[] pixelArray )
+      {
+         return false;
+      }
+
+      private static bool MediumClassifier( byte[] pixelArray )
+      {
+         return false;
+      }
+
+      private static bool StrongClassifier( byte[] pixelArray )
+      {
+         return false;
       }
    }
 }
