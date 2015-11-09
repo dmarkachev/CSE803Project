@@ -46,7 +46,7 @@
     <Compile Include="BitmapColorer.cs" />
     <Compile Include="BitmapOperations.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="FaceDetector.cs" />
+    <Compile Include="ColorClassifier.cs" />
     <Compile Include="ImageBlobInfo.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

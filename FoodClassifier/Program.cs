@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
@@ -85,6 +83,7 @@ namespace FoodClassifier
          // Moving window to brute force search the image
          // May need to adjust increments to increase accuracy
          var classificationLock = new object();
+         var colorHistograms = ClassificationColorBins.GetFoodColors();
          for ( int width = bitmapWidth - 1; width > 15; width -= 15 )
          {
             for ( int height = bitmapHeight - 1; height > 15; height -= 15 )
@@ -100,7 +99,7 @@ namespace FoodClassifier
                         if ( !classifications[i] )
                         {
                            var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
-                           bool classification = WeakClassifier( croppedPixelArray ) &&
+                           bool classification = ClassifyByColor( croppedPixelArray, colorHistograms[i] ) &&
                                                  MediumClassifier( croppedPixelArray ) &&
                                                  StrongClassifier( croppedPixelArray );
                            if ( classification )
@@ -119,9 +118,20 @@ namespace FoodClassifier
          return classifications;
       }
 
-      private static bool WeakClassifier( byte[] pixelArray )
+      /// <summary>
+      /// The weak classify that classifies by comparing the color histogram
+      /// of the given bitmap and returns true if it is close enough
+      /// to the target histogram
+      /// </summary>
+      /// <param name="pixelArray">The pixel array of the bitmap to classify</param>
+      /// <param name="targetColor">The histogram of the color of the target object</param>
+      /// <returns>True if this classifier thinks the bitmap is the object</returns>
+      private static bool ClassifyByColor( byte[] pixelArray, double[] targetColor )
       {
-         return false;
+         var color = ColorClassifier.GetColorBins( pixelArray );
+         var distance = ColorClassifier.CalculateBinDistance( color, targetColor );
+
+         return distance <= 36 /*Adjustable threshold*/;
       }
 
       private static bool MediumClassifier( byte[] pixelArray )

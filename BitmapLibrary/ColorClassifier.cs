@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 
 namespace BitmapLibrary
 {
-   public static class FaceDetector
+   public static class ColorClassifier
    {
       private static readonly double[] FaceTemplate =
       {
@@ -200,7 +200,7 @@ namespace BitmapLibrary
       /// <param name="firstBins">The first histogram</param>
       /// <param name="secondBins">The second histogram</param>
       /// <returns>The average distance between bins in the histograms</returns>
-      private static double CalculateBinDistance( double[] firstBins, double[] secondBins )
+      public static double CalculateBinDistance( double[] firstBins, double[] secondBins )
       {
          Debug.Assert( firstBins.Count() == secondBins.Count() );
 
