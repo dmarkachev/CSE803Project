@@ -85,7 +85,7 @@ namespace FoodClassifier
          // May need to adjust increments to increase accuracy
          var classificationLock = new object();
          var colorHistograms = ClassificationColorBins.GetFoodColors();
-         Parallel.For( 0, 1, i =>
+         Parallel.For( 0, classifications.Count(), i =>
          {
             // If we have not already identified this image as that object
             // see if we can classify it with this window
