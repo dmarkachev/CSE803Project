@@ -132,7 +132,7 @@ namespace FoodClassifier
                int height = Math.Min( 8, bitmapHeight - row );
                var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
                var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
-               var distance = ColorClassifier.CalculateBinDistance( colorBins, ColorClassifier.FaceTemplate );
+               var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
 
                // Possible areas where the 
                byte newColor = distance >= 120 ? (byte)255 : (byte)0;
