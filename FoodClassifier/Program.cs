@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
@@ -34,7 +35,7 @@ namespace FoodClassifier
          {
             directory = "";
          }
-       
+
          var bitmap = new BitmapImage( new Uri( args[0], string.IsNullOrEmpty( directory ) ? UriKind.Relative : UriKind.Absolute ) );
 
          // Resize to fit in 400x400 box for faster processing
@@ -42,8 +43,8 @@ namespace FoodClassifier
          var resizedBitmap = new BitmapImage();
          resizedBitmap.BeginInit();
          resizedBitmap.UriSource = bitmap.UriSource;
-         resizedBitmap.DecodePixelHeight = (int)(scale * bitmap.PixelHeight);
-         resizedBitmap.DecodePixelWidth = (int)(scale * bitmap.PixelWidth);
+         resizedBitmap.DecodePixelHeight = (int)( scale * bitmap.PixelHeight );
+         resizedBitmap.DecodePixelWidth = (int)( scale * bitmap.PixelWidth );
          resizedBitmap.EndInit();
 
          // Reformat to BGR
@@ -69,12 +70,12 @@ namespace FoodClassifier
             false, // food 4
             false, // food 5
             false, // food 6
-            false  // food 7
+            false // food 7
          };
 
-         int stride = ( bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7 ) / 8;
+         int stride = ( bitmap.PixelWidth*bitmap.Format.BitsPerPixel + 7 )/8;
 
-         byte[] pixelArray = new byte[bitmap.PixelHeight * stride];
+         byte[] pixelArray = new byte[bitmap.PixelHeight*stride];
          bitmap.CopyPixels( pixelArray, stride, 0 );
 
          int bitmapWidth = bitmap.PixelWidth;
@@ -84,37 +85,25 @@ namespace FoodClassifier
          // May need to adjust increments to increase accuracy
          var classificationLock = new object();
          var colorHistograms = ClassificationColorBins.GetFoodColors();
-         for ( int width = bitmapWidth - 1; width > 15; width -= 15 )
+         Parallel.For( 0, 1, i =>
          {
-            for ( int height = bitmapHeight - 1; height > 15; height -= 15 )
+            // If we have not already identified this image as that object
+            // see if we can classify it with this window
+            if ( !classifications[i] )
             {
-               Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapWidth - width, bitmapWidth / 45 ), column =>
+               bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, colorHistograms[i] ) &&
+                                     ClassifyByTexture( pixelArray ) &&
+                                     StrongClassifier( pixelArray );
+               if ( classification )
                {
-                  Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapHeight - height, bitmapHeight / 45 ), row =>
+                  lock ( classificationLock )
                   {
-                     for ( int i = 0; i < classifications.Count(); i++ )
-                     {
-                        // If we have not already identified this image as that object
-                        // see if we can classify it with this window
-                        if ( !classifications[i] )
-                        {
-                           var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
-                           bool classification = ClassifyByColor( croppedPixelArray, colorHistograms[i] ) &&
-                                                 MediumClassifier( croppedPixelArray ) &&
-                                                 StrongClassifier( croppedPixelArray );
-                           if ( classification )
-                           {
-                              lock ( classificationLock )
-                              {
-                                 classifications[i] = true;
-                              }
-                           }
-                        }
-                     }
-                  } );
-               } );
-            }
-         }
+                     classifications[i] = true;
+                  }
+               }
+            }           
+         } );
+
          return classifications;
       }
 
@@ -124,17 +113,63 @@ namespace FoodClassifier
       /// to the target histogram
       /// </summary>
       /// <param name="pixelArray">The pixel array of the bitmap to classify</param>
+      /// <param name="bitmapWidth">The width of the bitmap</param>
+      /// <param name="bitmapHeight">The height of the bitmap</param>
+      /// <param name="stride">The number of bytes per row</param>
       /// <param name="targetColor">The histogram of the color of the target object</param>
       /// <returns>True if this classifier thinks the bitmap is the object</returns>
-      private static bool ClassifyByColor( byte[] pixelArray, double[] targetColor )
+      private static bool ClassifyByColor( byte[] pixelArray, int bitmapWidth, int bitmapHeight, int stride, double[] targetColor )
       {
-         var color = ColorClassifier.GetColorBins( pixelArray );
-         var distance = ColorClassifier.CalculateBinDistance( color, targetColor );
+         var colorDistancePixelArray = (byte[])pixelArray.Clone();
+         var pixelArrayLock = new object();
 
-         return distance <= 36 /*Adjustable threshold*/;
+         // Threshold the image for possible areas where the object is
+         Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapWidth, 8 ), column =>
+         {
+            Parallel.ForEach( ExtensionMethods.SteppedRange( 0, bitmapHeight, 8 ), row =>
+            {
+               int width = Math.Min( 8, bitmapWidth - column );
+               int height = Math.Min( 8, bitmapHeight - row );
+               var croppedPixelArray = pixelArray.CropPixelArray( column, row, width, height, stride );
+               var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
+               var distance = ColorClassifier.CalculateBinDistance( colorBins, ColorClassifier.FaceTemplate );
+
+               // Possible areas where the 
+               byte newColor = distance >= 120 ? (byte)255 : (byte)0;
+               for ( int ii = 0; ii < width; ii++ )
+               {
+                  for ( int j = 0; j < height; j++ )
+                  {
+                     int index = ( row + j )*stride + 4*( column + ii );
+                     lock ( pixelArrayLock )
+                     {
+                        colorDistancePixelArray[index] = colorDistancePixelArray[index + 1] = colorDistancePixelArray[index + 2] = newColor;
+                     }
+                  }
+               }
+            } );
+         } );
+
+         // Look at each blob and determine if it is our
+         // object with a stricted threshold
+         var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
+         tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
+         var blobColors = BitmapColorer.ColorBitmap( tempBitmap );
+         foreach ( var color in blobColors )
+         {
+            var boundingBox = BitmapColorer.GetBoundingBoxOfColor( tempBitmap, color );
+            var croppedPixelArray = pixelArray.CropPixelArray( (int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride );
+            var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
+            var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
+            if ( distance <= 60 )
+            {
+               return true;
+            }
+         }
+         return false;
       }
 
-      private static bool MediumClassifier( byte[] pixelArray )
+      private static bool ClassifyByTexture( byte[] pixelArray )
       {
          return false;
       }

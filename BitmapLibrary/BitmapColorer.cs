@@ -286,5 +286,31 @@ namespace BitmapLibrary
          // Pixels are in BGR format
          return Color.FromRgb( pixelArray[index + 2], pixelArray[index + 1], pixelArray[index] );
       }
+
+      public static Rect GetBoundingBoxOfColor( WriteableBitmap bitmap, Color color )
+      {
+         int stride = ( bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7 ) / 8;
+
+         byte[] pixelArray = new byte[bitmap.PixelHeight * stride];
+         bitmap.CopyPixels( pixelArray, stride, 0 );
+
+         var boundingBox = new Rect( int.MaxValue, int.MaxValue, 0, 0 );
+         for ( int column = 0; column < bitmap.PixelWidth; column++ )
+         {
+            for ( int row = 0; row < bitmap.PixelHeight; row++ )
+            {
+               int index = row * stride + 4 * column;
+               if ( GetPixelColor( pixelArray, index ) == color )
+               {
+                  boundingBox.X = Math.Min( boundingBox.X, column );
+                  boundingBox.Y = Math.Min( boundingBox.Y, row );
+                  boundingBox.Width = Math.Max( boundingBox.Width, column - boundingBox.X );
+                  boundingBox.Height = Math.Max( boundingBox.Height, row - boundingBox.Y );
+               }
+            }
+         }
+
+         return boundingBox;
+      }
    }
 }
