@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
+using Microsoft.Win32;
 
 namespace FoodClassifier
 {
@@ -56,7 +57,11 @@ namespace FoodClassifier
 
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
 
-         var classifications = ClassifyBitmap( writeableBitmap );
+         string fileName1 = directory+"\\outputImage.jpg";
+
+         ExtensionMethods.Save(writeableBitmap, fileName1);
+
+       //  var classifications = ClassifyBitmap( writeableBitmap );
       }
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap )
