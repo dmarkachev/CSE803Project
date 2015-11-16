@@ -134,13 +134,13 @@ namespace FoodClassifier
                var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
                var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
 
-               // Possible areas where the 
+               // Possible areas where the object we are looking for is are black
                byte newColor = distance >= 120 ? (byte)255 : (byte)0;
-               for ( int ii = 0; ii < width; ii++ )
+               for ( int i = 0; i < width; i++ )
                {
                   for ( int j = 0; j < height; j++ )
                   {
-                     int index = ( row + j )*stride + 4*( column + ii );
+                     int index = ( row + j )*stride + 4*( column + i );
                      lock ( pixelArrayLock )
                      {
                         colorDistancePixelArray[index] = colorDistancePixelArray[index + 1] = colorDistancePixelArray[index + 2] = newColor;

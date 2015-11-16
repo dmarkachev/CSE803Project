@@ -337,5 +337,122 @@ namespace BitmapLibrary
          }
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
+
+      public static void GaussianBlur( WriteableBitmap bitmap, int radius )
+      {
+         int sz = radius * 2 + 1;
+         var kernel = new int[sz];
+         var multable = new int[sz, 256];
+         for ( int i = 1; i <= radius; i++ )
+         {
+            int szi = radius - i;
+            int szj = radius + i;
+            kernel[szj] = kernel[szi] = ( szi + 1 ) * ( szi + 1 );
+            for ( int j = 0; j < 256; j++ )
+            {
+               multable[szj, j] = multable[szi, j] = kernel[szj] * j;
+            }
+         }
+         kernel[radius] = ( radius + 1 ) * ( radius + 1 );
+         for ( int j = 0; j < 256; j++ )
+         {
+            multable[radius, j] = kernel[radius] * j;
+         }
+
+         int stride = ( bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7 ) / 8;
+
+         byte[] pixelArray = new byte[bitmap.PixelHeight * stride];
+         byte[] newPixelArray = new byte[bitmap.PixelHeight * stride];
+         bitmap.CopyPixels( pixelArray, stride, 0 );
+
+         int pixelCount = bitmap.PixelWidth * bitmap.PixelHeight;
+         int[] b = new int[pixelCount];
+         int[] g = new int[pixelCount];
+         int[] r = new int[pixelCount];
+
+         int[] b2 = new int[pixelCount];
+         int[] g2 = new int[pixelCount];
+         int[] r2 = new int[pixelCount];
+
+         int index = 0;
+         for ( int row = 0; row < bitmap.PixelHeight; row++ )
+         {
+            for ( int column = 0; column < bitmap.PixelWidth; column++ )
+            {
+               int pixelIndex = row * stride + 4 * column;
+               b[index] = pixelArray[pixelIndex];
+               g[index] = pixelArray[pixelIndex + 1];
+               r[index] = pixelArray[pixelIndex + 2];
+
+               ++index;
+            }
+         }
+
+         int bsum;
+         int gsum;
+         int rsum;
+         int sum;
+         int read;
+         int start = 0;
+         index = 0;
+         for ( int i = 0; i < bitmap.PixelHeight; i++ )
+         {
+            for ( int j = 0; j < bitmap.PixelWidth; j++ )
+            {
+               bsum = gsum = rsum = sum = 0;
+               read = index - radius;
+
+               for ( int z = 0; z < kernel.Length; z++ )
+               {
+                  if ( read >= start && read < start + bitmap.PixelWidth )
+                  {
+                     bsum += multable[z, b[read]];
+                     gsum += multable[z, g[read]];
+                     rsum += multable[z, r[read]];
+                     sum += kernel[z];
+                  }
+                  ++read;
+               }
+
+               b2[index] = ( bsum / sum );
+               g2[index] = ( gsum / sum );
+               r2[index] = ( rsum / sum );
+
+               ++index;
+            }
+            start += bitmap.PixelWidth;
+         }
+
+         for ( int row = 0; row < bitmap.PixelHeight; row++ )
+         {
+            int y = row - radius;
+            start = y * bitmap.PixelWidth;
+            for ( int column = 0; column < bitmap.PixelWidth; column++ )
+            {
+               bsum = gsum = rsum = sum = 0;
+               read = start + column;
+               var tempy = y;
+               for ( int z = 0; z < kernel.Length; z++ )
+               {
+                  if ( tempy >= 0 && tempy < bitmap.PixelHeight )
+                  {
+                     bsum += multable[z, b2[read]];
+                     gsum += multable[z, g2[read]];
+                     rsum += multable[z, r2[read]];
+                     sum += kernel[z];
+                  }
+                  read += bitmap.PixelWidth;
+                  ++tempy;
+               }
+
+               int pixelIndex = row * stride + 4 * column;
+               newPixelArray[pixelIndex] = (byte)( bsum / sum );
+               newPixelArray[pixelIndex + 1] = (byte)( gsum / sum );
+               newPixelArray[pixelIndex + 2] = (byte)( rsum / sum );
+            }
+         }
+
+         bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), newPixelArray, stride, 0 );
+      }
    }
 }
