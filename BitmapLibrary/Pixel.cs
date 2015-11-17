@@ -67,6 +67,16 @@ namespace BitmapLibrary
            pixelArray[index + 2] = Convert.ToByte(R);
        }
 
+       public void SetPixelGreyColor(int grey)
+       {
+           //blue
+           pixelArray[index] = Convert.ToByte(grey);
+           //green
+           pixelArray[index + 1] = Convert.ToByte(grey);
+           //red
+           pixelArray[index + 2] = Convert.ToByte(grey);
+       }
+
        public int getRed()
        {
            return pixelArray[index + 2];

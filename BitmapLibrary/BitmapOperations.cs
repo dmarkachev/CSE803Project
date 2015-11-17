@@ -332,17 +332,11 @@ namespace BitmapLibrary
                   int leftPixelIndex = index - 4;
                   int topLeftPixelIndex = index - stride - 4;
                   int topPixelIndex = index - stride;
+                  int bottomPixelIndex = index + stride;
                   int topRightPixelIndex = index - stride + 4;
 
                   pixel.SetIndex(index);
-                  pixel.SetPixelColors(255,0,0);
-
-                  pixel.SetIndex(topLeftPixelIndex);
-                  pixel.SetPixelColors(0, 0, 255);
-                  pixel.SetIndex(leftPixelIndex);
-                  pixel.SetPixelColors(0, 255, 255);
-
-
+                  pixel.SetPixelGreyColor(100);
               }
           }
 
