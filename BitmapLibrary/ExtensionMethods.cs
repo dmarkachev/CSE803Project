@@ -32,7 +32,7 @@ namespace BitmapLibrary
       {
          using ( FileStream fs = new FileStream( filename, FileMode.Create ) )
          {
-            var encoder = new JpegBitmapEncoder();
+             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add( BitmapFrame.Create( bitmap ) );
             encoder.Save( fs );
             fs.Close();

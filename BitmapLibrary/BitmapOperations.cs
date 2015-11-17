@@ -309,6 +309,50 @@ namespace BitmapLibrary
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
 
+
+      /// <summary>
+      /// Loops through all the pixels and averages the RGB values to grayscale the image
+      /// </summary>
+      /// <param name="bitmap">The bitmap to be grayscaled</param>
+      public static void BlueScaleBitmap(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+
+          for (int column = 1; column < bitmap.PixelWidth; column+=4)
+          {
+              for (int row = 1; row < bitmap.PixelHeight; row+=4)
+              {
+                  int index = row*stride + 4*column;
+
+                  //blue
+                  pixelByteArray[index] = Convert.ToByte(255);
+                  //green
+                  pixelByteArray[index + 1] = Convert.ToByte(0);
+                  //red
+                  pixelByteArray[index + 2] = Convert.ToByte(0);
+
+                  int leftPixelIndex = index - 4;
+                  int topLeftPixelIndex = index - stride - 4;
+                  int topPixelIndex = index - stride;
+                  int topRightPixelIndex = index - stride + 4;
+
+                  //green
+                  pixelByteArray[leftPixelIndex + 1] = Convert.ToByte(255);
+                  //green
+                  pixelByteArray[leftPixelIndex ] = Convert.ToByte(0);
+                  //red
+                  pixelByteArray[leftPixelIndex + 2] = Convert.ToByte(0);
+
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
+
       /// <summary>
       /// Thresholds the supplied bitmap using the supplied theshold value
       /// </summary>
