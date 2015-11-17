@@ -75,17 +75,49 @@ namespace BitmapLibrary
 
        public int getRed(int index)
        {
-           return pixelArray[index + 2];
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
+           {
+               return pixelArray[index + 2];
+           }
+           else
+           {
+               return 0;
+           }
        }
 
        public int getGreen(int index)
        {
-           return pixelArray[index + 1];
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
+           {
+               return pixelArray[index + 1];
+           }
+           else
+           {
+               return 0;
+           }
        }
 
        public int getBlue(int index)
        {
-           return pixelArray[index];
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
+           {
+               return pixelArray[index];
+           }
+           else
+           {
+               return 0;
+           }
+       }
+       public int getGray(int index)
+       {
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
+           {
+               return pixelArray[index];
+           }
+           else
+           {
+               return 0;
+           }
        }
    }
 }

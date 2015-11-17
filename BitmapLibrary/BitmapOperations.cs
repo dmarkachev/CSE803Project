@@ -322,13 +322,14 @@ namespace BitmapLibrary
           byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
 
           bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
 
           var referencePixel = new PixelWrapper(backupPixelArray);
           var pixel = new PixelWrapper(pixelByteArray);
 
-          for (int column = 1; column < bitmap.PixelWidth; column+=4)
+          for (int column = 0; column < bitmap.PixelWidth; column+=1)
           {
-              for (int row = 1; row < bitmap.PixelHeight; row+=4)
+              for (int row = 0; row < bitmap.PixelHeight; row+=1)
               {
                   int index = row*stride + 4*column;
                   
@@ -341,7 +342,21 @@ namespace BitmapLibrary
                   int leftPixelIndex = index - 4;
                   int rightPixelIndex = index + 4;
 
-                  pixel.SetPixelGreyColor(100, index);
+                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
+                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
+
+                  double DxT = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(topRightPixelIndex)) / 2.0;
+                  double DxM = (referencePixel.getGray(leftPixelIndex) - referencePixel.getGray(rightPixelIndex)) / 2.0;
+                  double DxB = (referencePixel.getGray(bottomLeftPixelIndex) - referencePixel.getGray(topRightPixelIndex)) / 2.0;
+
+                  double Fx = (DyL + DyM + DyR)/3.0;
+                  double Fy = (DxT + DxM + DxB)/3.0;
+
+                  double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
+                  int gradientIntensity = (int) gradientMagnitude;
+
+                  pixel.SetPixelGreyColor(gradientIntensity,index);
               }
           }
 
