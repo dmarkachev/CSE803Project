@@ -58,7 +58,7 @@ namespace FoodClassifier
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
 
          BitmapOperations.GrayscaleBitmap(writeableBitmap);
-         BitmapOperations.BlueScaleBitmap(writeableBitmap);
+         BitmapOperations.GradientScaleBitmap(writeableBitmap);
       //   BitmapOperations.ThresholdBitmap(writeableBitmap,100,false);
 
          string fileName1 = directory + "\\outputImage.png";

@@ -314,13 +314,16 @@ namespace BitmapLibrary
       /// Loops through all the pixels and averages the RGB values to grayscale the image
       /// </summary>
       /// <param name="bitmap">The bitmap to be grayscaled</param>
-      public static void BlueScaleBitmap(WriteableBitmap bitmap)
+      public static void GradientScaleBitmap(WriteableBitmap bitmap)
       {
           int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
 
           byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
           bitmap.CopyPixels(pixelByteArray, stride, 0);
 
+          var referencePixel = new PixelWrapper(backupPixelArray);
           var pixel = new PixelWrapper(pixelByteArray);
 
           for (int column = 1; column < bitmap.PixelWidth; column+=4)
@@ -328,15 +331,17 @@ namespace BitmapLibrary
               for (int row = 1; row < bitmap.PixelHeight; row+=4)
               {
                   int index = row*stride + 4*column;
-
-                  int leftPixelIndex = index - 4;
+                  
                   int topLeftPixelIndex = index - stride - 4;
+                  int bottomLeftPixelIndex = index + stride - 4;
                   int topPixelIndex = index - stride;
                   int bottomPixelIndex = index + stride;
                   int topRightPixelIndex = index - stride + 4;
+                  int bottomRightPixelIndex = index + stride + 4;
+                  int leftPixelIndex = index - 4;
+                  int rightPixelIndex = index + 4;
 
-                  pixel.SetIndex(index);
-                  pixel.SetPixelGreyColor(100);
+                  pixel.SetPixelGreyColor(100, index);
               }
           }
 

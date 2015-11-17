@@ -42,52 +42,48 @@ namespace BitmapLibrary
    {
        private byte[] pixelArray;
 
-       private int index;
-
        public PixelWrapper(byte[] pixelArray)
        {
            this.pixelArray = pixelArray;
        }
 
-       public void SetIndex(int index)
+       public void SetPixelColors(int R, int G, int B, int index)
        {
-           if (index >= 0 && index < pixelArray.Length && index % 4 == 0)
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
            {
-               this.index = index;
-           }  
+               //blue
+               pixelArray[index] = Convert.ToByte(B);
+               //green
+               pixelArray[index + 1] = Convert.ToByte(G);
+               //red
+               pixelArray[index + 2] = Convert.ToByte(R);
+           }
        }
 
-       public void SetPixelColors(int R, int G, int B)
+       public void SetPixelGreyColor(int grey, int index)
        {
-           //blue
-           pixelArray[index] = Convert.ToByte(B);
-           //green
-           pixelArray[index + 1] = Convert.ToByte(G);
-           //red
-           pixelArray[index + 2] = Convert.ToByte(R);
+           if (index >= 0 && index < pixelArray.Length && index%4 == 0)
+           {
+               //blue
+               pixelArray[index] = Convert.ToByte(grey);
+               //green
+               pixelArray[index + 1] = Convert.ToByte(grey);
+               //red
+               pixelArray[index + 2] = Convert.ToByte(grey);
+           }
        }
 
-       public void SetPixelGreyColor(int grey)
-       {
-           //blue
-           pixelArray[index] = Convert.ToByte(grey);
-           //green
-           pixelArray[index + 1] = Convert.ToByte(grey);
-           //red
-           pixelArray[index + 2] = Convert.ToByte(grey);
-       }
-
-       public int getRed()
+       public int getRed(int index)
        {
            return pixelArray[index + 2];
        }
 
-       public int getGreen()
+       public int getGreen(int index)
        {
            return pixelArray[index + 1];
        }
 
-       public int getBlue()
+       public int getBlue(int index)
        {
            return pixelArray[index];
        }
