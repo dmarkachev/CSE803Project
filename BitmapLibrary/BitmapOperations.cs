@@ -354,9 +354,42 @@ namespace BitmapLibrary
                   double Fy = (DxT + DxM + DxB)/3.0;
 
                   double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
-                  int gradientIntensity = (int) gradientMagnitude;
 
-                  pixel.SetPixelGreyColor(gradientIntensity,index);
+                  if (Fx < 0.001)
+                  {
+                      Fx = 0.001;
+                  }
+
+                  if (Fy < 0.001)
+                  {
+                      Fy = 0.001;
+                  }
+
+                  double Theta = Math.Atan(Fy/Fx);
+                  double angle = Theta * (180/Math.PI);
+
+                  if (angle > 180.0)
+                  {
+                      angle = angle - 180;
+                  }
+
+                  if (angle < 0)
+                  {
+                      angle = angle + 180;
+                  }
+
+                  int angleIntensity = Convert.ToInt32(angle);
+
+                  if (angleIntensity > 255)
+                      angleIntensity = 255;
+
+                  int gradientIntensity = Convert.ToInt32(gradientMagnitude);
+
+                  if (gradientIntensity > 255)
+                      gradientIntensity = 255;
+
+                  pixel.SetPixelColors(0, angleIntensity, 0, index);
+                 // pixel.SetPixelGreyColor(gradientIntensity,index);
               }
           }
 
