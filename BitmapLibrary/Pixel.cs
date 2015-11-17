@@ -1,4 +1,6 @@
 ﻿using System.Windows.Media;
+using System;
+using System.Dynamic;
 
 namespace BitmapLibrary
 {
@@ -34,5 +36,50 @@ namespace BitmapLibrary
          }
          return null;
       }
+   }
+
+   public class PixelWrapper
+   {
+       private byte[] pixelArray;
+
+       private int index;
+
+       public PixelWrapper(byte[] pixelArray)
+       {
+           this.pixelArray = pixelArray;
+       }
+
+       public void SetIndex(int index)
+       {
+           if (index >= 0 && index < pixelArray.Length && index % 4 == 0)
+           {
+               this.index = index;
+           }  
+       }
+
+       public void SetPixelColors(int R, int G, int B)
+       {
+           //blue
+           pixelArray[index] = Convert.ToByte(B);
+           //green
+           pixelArray[index + 1] = Convert.ToByte(G);
+           //red
+           pixelArray[index + 2] = Convert.ToByte(R);
+       }
+
+       public int getRed()
+       {
+           return pixelArray[index + 2];
+       }
+
+       public int getGreen()
+       {
+           return pixelArray[index + 1];
+       }
+
+       public int getBlue()
+       {
+           return pixelArray[index];
+       }
    }
 }
