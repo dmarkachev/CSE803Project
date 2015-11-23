@@ -346,9 +346,9 @@ namespace BitmapLibrary
                   double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
                   double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
 
-                  double DxT = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(topRightPixelIndex)) / 2.0;
-                  double DxM = (referencePixel.getGray(leftPixelIndex) - referencePixel.getGray(rightPixelIndex)) / 2.0;
-                  double DxB = (referencePixel.getGray(bottomLeftPixelIndex) - referencePixel.getGray(topRightPixelIndex)) / 2.0;
+                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex)) / 2.0;
+                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
+                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
 
                   double Fx = (DyL + DyM + DyR)/3.0;
                   double Fy = (DxT + DxM + DxB)/3.0;
@@ -388,8 +388,8 @@ namespace BitmapLibrary
                   if (gradientIntensity > 255)
                       gradientIntensity = 255;
 
-                  pixel.SetPixelColors(0, angleIntensity, 0, index);
-                 // pixel.SetPixelGreyColor(gradientIntensity,index);
+                //  pixel.SetPixelColors(0, angleIntensity, 0, index);
+                  pixel.SetPixelGreyColor(gradientIntensity,index);
               }
           }
 
