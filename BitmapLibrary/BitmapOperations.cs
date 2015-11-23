@@ -350,8 +350,8 @@ namespace BitmapLibrary
                   double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
                   double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
 
-                  double Fx = (DyL + DyM + DyR)/3.0;
-                  double Fy = (DxT + DxM + DxB)/3.0;
+                  double Fy = (DyL + DyM + DyR)/3.0;
+                  double Fx = (DxT + DxM + DxB)/3.0;
 
                   double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
 
