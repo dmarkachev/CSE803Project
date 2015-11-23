@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -329,10 +330,10 @@ namespace BitmapLibrary
 
           for (int column = 0; column < bitmap.PixelWidth; column+=1)
           {
-              for (int row = 0; row < bitmap.PixelHeight; row+=1)
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
               {
                   int index = row*stride + 4*column;
-                  
+
                   int topLeftPixelIndex = index - stride - 4;
                   int bottomLeftPixelIndex = index + stride - 4;
                   int topPixelIndex = index - stride;
@@ -342,41 +343,41 @@ namespace BitmapLibrary
                   int leftPixelIndex = index - 4;
                   int rightPixelIndex = index + 4;
 
-                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
-                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
-                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
+                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex))/ 2.0;
+                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex))/ 2.0;
+                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex))/ 2.0;
 
-                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex)) / 2.0;
-                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
-                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex))/ 2.0;
+                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex))/ 2.0;
+                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex))/ 2.0;
 
                   double Fy = (DyL + DyM + DyR)/3.0;
                   double Fx = (DxT + DxM + DxB)/3.0;
 
+                  if (Fx >= 0 && Fx < 0.0001)
+                  {
+                      Fx = 0.0001;
+                  }
+
+                  if (Fy >= 0 && Fy < 0.0001)
+                  {
+                      Fy = 0.0001;
+                  }
+
+                  if (Fx < 0 && Fx > -0.0001)
+                  {
+                      Fx = -0.0001;
+                  }
+
+                  if (Fy < 0 && Fy > -0.0001)
+                  {
+                      Fy = -0.0001;
+                  }
+
                   double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
 
-                  if (Fx < 0.001)
-                  {
-                      Fx = 0.001;
-                  }
-
-                  if (Fy < 0.001)
-                  {
-                      Fy = 0.001;
-                  }
-
-                  double Theta = Math.Atan(Fy/Fx);
-                  double angle = Theta * (180/Math.PI);
-
-                  if (angle > 180.0)
-                  {
-                      angle = angle - 180;
-                  }
-
-                  if (angle < 0)
-                  {
-                      angle = angle + 180;
-                  }
+                  double Theta = Math.Atan2(Fy, Fx);
+                  double angle = Theta*(180/Math.PI) + 180;
 
                   int angleIntensity = Convert.ToInt32(angle);
 
@@ -388,8 +389,12 @@ namespace BitmapLibrary
                   if (gradientIntensity > 255)
                       gradientIntensity = 255;
 
-                //  pixel.SetPixelColors(0, angleIntensity, 0, index);
-                  pixel.SetPixelGreyColor(gradientIntensity,index);
+                  if ( angle < 5  && gradientIntensity> 80)
+                  {
+                     // pixel.SetPixelColors(0, 255, 0, index);
+                  }
+              
+                 pixel.SetPixelGreyColor(gradientIntensity,index);
               }
           }
 
