@@ -87,6 +87,7 @@
     <Compile Include="ImageBlobInfo.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SurfClassifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="x86\cudart32_65.dll" />

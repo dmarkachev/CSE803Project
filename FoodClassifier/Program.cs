@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +7,6 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
-using Emgu.CV;
-using Emgu.CV.Structure;
 
 namespace FoodClassifier
 {
@@ -60,8 +57,6 @@ namespace FoodClassifier
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
 
          var classifications = ClassifyBitmap( writeableBitmap );
-
-         var image = new Image<Gray, byte>( new Bitmap( args[0] ) );
       }
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap )
@@ -106,7 +101,7 @@ namespace FoodClassifier
                      classifications[i] = true;
                   }
                }
-            }           
+            }
          } );
 
          return classifications;
