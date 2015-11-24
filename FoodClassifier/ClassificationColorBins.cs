@@ -4,21 +4,7 @@ namespace FoodClassifier
 {
    static class ClassificationColorBins
    {
-      public static List<double[]> GetFoodColors()
-      {
-         return new List<double[]>
-         {
-            FoodOneColor,
-            FoodTwoColor,
-            FoodThreeColor,
-            FoodFourColor,
-            FoodFiveColor,
-            FoodSixColor,
-            FoodSevenColor
-         };
-      }
-
-      private static readonly double[] FoodOneColor =
+      private static readonly double[] BananaTemplate =
       {
          0,
          0,
@@ -86,7 +72,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodTwoColor =
+      private static readonly double[] StrawberryTemplate =
       {
          0,
          0,
@@ -154,7 +140,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodThreeColor =
+      private static readonly double[] CookieTemplate =
       {
          0,
          0,
@@ -222,7 +208,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodFourColor =
+      private static readonly double[] HotdogTemplate =
       {
          0,
          0,
@@ -290,7 +276,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodFiveColor =
+      private static readonly double[] BroccoliTemplate =
       {
          0,
          0,
@@ -358,7 +344,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodSixColor =
+      private static readonly double[] FrenchFryTemplate =
       {
          0,
          0,
@@ -426,7 +412,7 @@ namespace FoodClassifier
          0
       };
 
-      private static readonly double[] FoodSevenColor =
+      private static readonly double[] EggTemplate =
       {
          0,
          0,
@@ -492,6 +478,17 @@ namespace FoodClassifier
          0,
          0,
          0
+      };
+
+      public static List<double[]> FoodColors = new List<double[]>
+      {
+         BananaTemplate,
+         StrawberryTemplate,
+         CookieTemplate,
+         HotdogTemplate,
+         BroccoliTemplate,
+         FrenchFryTemplate,
+         EggTemplate
       };
    }
 }

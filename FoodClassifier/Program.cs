@@ -64,13 +64,13 @@ namespace FoodClassifier
          // Let's pick 7 items to classify
          var classifications = new List<bool>
          {
-            false, // food 1
-            false, // food 2
-            false, // food 3
-            false, // food 4
-            false, // food 5
-            false, // food 6
-            false // food 7
+            false, // banana
+            false, // strawberry
+            false, // cookie
+            false, // hotdog
+            false, // broccoli
+            false, // french fries
+            false  // egg
          };
 
          int stride = ( bitmap.PixelWidth*bitmap.Format.BitsPerPixel + 7 )/8;
@@ -84,14 +84,13 @@ namespace FoodClassifier
          // Moving window to brute force search the image
          // May need to adjust increments to increase accuracy
          var classificationLock = new object();
-         var colorHistograms = ClassificationColorBins.GetFoodColors();
          Parallel.For( 0, classifications.Count(), i =>
          {
             // If we have not already identified this image as that object
             // see if we can classify it with this window
             if ( !classifications[i] )
             {
-               bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, colorHistograms[i] ) &&
+               bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] ) &&
                                      ClassifyByTexture( pixelArray ) &&
                                      StrongClassifier( pixelArray );
                if ( classification )
