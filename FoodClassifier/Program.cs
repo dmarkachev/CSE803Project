@@ -38,8 +38,12 @@ namespace FoodClassifier
 
          var bitmap = new BitmapImage( new Uri( args[0], string.IsNullOrEmpty( directory ) ? UriKind.Relative : UriKind.Absolute ) );
 
-         // Resize to fit in 400x400 box for faster processing
-         double scale = Math.Min( 400.0/bitmap.PixelWidth, 400.0/bitmap.PixelHeight );
+         // Scale the image up if it is too small
+         double scale = 1.0;
+         if ( bitmap.PixelHeight < 400 || bitmap.PixelWidth < 400)
+         {
+            scale = Math.Min( 400.0/bitmap.PixelWidth, 400.0/bitmap.PixelHeight );
+         }
          var resizedBitmap = new BitmapImage();
          resizedBitmap.BeginInit();
          resizedBitmap.UriSource = bitmap.UriSource;
@@ -134,7 +138,7 @@ namespace FoodClassifier
                var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
 
                // Possible areas where the object we are looking for is are black
-               byte newColor = distance >= 120 ? (byte)255 : (byte)0;
+               byte newColor = distance >= 125 ? (byte)255 : (byte)0;
                for ( int i = 0; i < width; i++ )
                {
                   for ( int j = 0; j < height; j++ )
@@ -153,14 +157,16 @@ namespace FoodClassifier
          // object with a stricted threshold
          var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
          tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
+
          var blobColors = BitmapColorer.ColorBitmap( tempBitmap );
          foreach ( var color in blobColors )
          {
             var boundingBox = BitmapColorer.GetBoundingBoxOfColor( tempBitmap, color );
+
             var croppedPixelArray = pixelArray.CropPixelArray( (int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride );
             var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
             var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
-            if ( distance <= 60 )
+            if ( distance <= 75 )
             {
                return true;
             }
