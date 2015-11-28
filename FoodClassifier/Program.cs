@@ -38,11 +38,15 @@ namespace FoodClassifier
 
          var bitmap = new BitmapImage( new Uri( args[0], string.IsNullOrEmpty( directory ) ? UriKind.Relative : UriKind.Absolute ) );
 
-         // Scale the image up if it is too small
+         // Scale the image up if it is too small or down if it is too big
          double scale = 1.0;
-         if ( bitmap.PixelHeight < 400 || bitmap.PixelWidth < 400)
+         if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400)
          {
             scale = Math.Min( 400.0/bitmap.PixelWidth, 400.0/bitmap.PixelHeight );
+         }
+         else if ( bitmap.PixelHeight > 1000 && bitmap.PixelWidth > 1000 )
+         {
+            scale = Math.Min( 1000.0 / bitmap.PixelWidth, 1000.0 / bitmap.PixelHeight );
          }
          var resizedBitmap = new BitmapImage();
          resizedBitmap.BeginInit();
@@ -157,16 +161,17 @@ namespace FoodClassifier
          // object with a stricted threshold
          var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
          tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
+         var allBlobDistance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, Colors.Black );
+         if ( allBlobDistance <= 95 )
+         {
+            return true;
+         }
 
          var blobColors = BitmapColorer.ColorBitmap( tempBitmap );
          foreach ( var color in blobColors )
          {
-            var boundingBox = BitmapColorer.GetBoundingBoxOfColor( tempBitmap, color );
-
-            var croppedPixelArray = pixelArray.CropPixelArray( (int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride );
-            var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
-            var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
-            if ( distance <= 75 )
+            var distance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, color );
+            if ( distance <= 95 )
             {
                return true;
             }
@@ -174,14 +179,24 @@ namespace FoodClassifier
          return false;
       }
 
+      private static double GetColorBinDistance( byte[] pixelArray, int stride, double[] targetHistogram, WriteableBitmap tempBitmap, Color color )
+      {
+         var boundingBox = BitmapColorer.GetBoundingBoxOfColor( tempBitmap, color );
+
+         var croppedPixelArray = pixelArray.CropPixelArray( (int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride );
+         var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
+         var distance = ColorClassifier.CalculateBinDistance( colorBins, targetHistogram );
+         return distance;
+      }
+
       private static bool ClassifyByTexture( byte[] pixelArray )
       {
-         return false;
+         return true;
       }
 
       private static bool StrongClassifier( byte[] pixelArray )
       {
-         return false;
+         return true;
       }
    }
 }
