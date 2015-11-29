@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
+using Color = System.Windows.Media.Color;
 
 namespace FoodClassifier
 {
