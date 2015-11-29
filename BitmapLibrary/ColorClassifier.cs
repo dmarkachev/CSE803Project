@@ -99,17 +99,6 @@ namespace BitmapLibrary
 
          for ( int pixelIndex = 0; pixelIndex < pixelArray.Count(); pixelIndex += 4 )
          {
-            // Ignore light shades of gray and white
-            if ( pixelArray[pixelIndex] > 200 && pixelArray[pixelIndex + 1] > 200 && pixelArray[pixelIndex + 2] > 200 )
-            {
-               if ( Math.Abs( pixelArray[pixelIndex] - pixelArray[pixelIndex + 1] ) < 5 &&
-                 Math.Abs( pixelArray[pixelIndex] - pixelArray[pixelIndex + 2] ) < 5 &&
-                 Math.Abs( pixelArray[pixelIndex + 1] - pixelArray[pixelIndex + 2] ) < 5 )
-               {
-                  continue;
-               }
-            }            
-
             byte colorRepresentation = 0;
 
             // Shift right 6 to get 2 high bits, then shift left for its position in the final byte
