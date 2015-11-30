@@ -444,52 +444,57 @@ namespace BitmapLibrary
                   double I1 = referencePixel.getRed(index);
                   double totalMag = I1;
 
+                  if (totalMag > 1)
+                  {
+         
+                  }
+
                   A2 = referencePixel.getGreen(topLeftPixelIndex)*(360/255.0);
                   I2 = referencePixel.getRed(topLeftPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI/180.0)*(A2 - A1));
                   totalMag += dotProduct;
 
                   A2 = referencePixel.getGreen(bottomLeftPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(bottomLeftPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
                   A2 = referencePixel.getGreen(topPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(topPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
                   A2 = referencePixel.getGreen(bottomPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(bottomPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
 
                   A2 = referencePixel.getGreen(topRightPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(topRightPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
                   A2 = referencePixel.getGreen(bottomRightPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(bottomRightPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
                   A2 = referencePixel.getGreen(leftPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(leftPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
                   A2 = referencePixel.getGreen(rightPixelIndex) * (360 / 255.0);
                   I2 = referencePixel.getRed(rightPixelIndex);
 
-                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
                   totalMag = totalMag/8.0;
