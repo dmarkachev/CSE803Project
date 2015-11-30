@@ -9,19 +9,38 @@ namespace FoodClassifier
 {
    public static class SurfClassifier
    {
-      public static bool HasBananaStem( Image<Gray, byte> observedImage )
+      public static bool HasBananaStem( this Image<Gray, byte> observedImage )
       {
-         return IsModelInObserved( GetImage( "Banana.StemStub1.jpg" ), observedImage ) ||
-                IsModelInObserved( GetImage( "Banana.StemStub2.jpg" ), observedImage ) ||
-                IsModelInObserved( GetImage( "Banana.StemStub3.jpg" ), observedImage );
+         bool found = IsModelInObserved( GetImage( "Banana.StemStub1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.StemStub2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.StemStub3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.StemStub4.jpg" ), observedImage );
+         return found;
       }
 
-      public static bool HasBananaFlesh( Image<Gray, byte> observedImage )
+      public static bool HasLongBananaStem( this Image<Gray, byte> observedImage )
       {
-         return IsModelInObserved( GetImage( "Banana.FreshBananaFlesh.jpg" ), observedImage ) ||
-                IsModelInObserved( GetImage( "Banana.RipeBananaFlesh.jpg" ), observedImage ) ||
-                IsModelInObserved( GetImage( "Banana.VeryRipeBananaFlesh.jpg" ), observedImage ) ||
-                IsModelInObserved( GetImage( "Banana.InternalBanana.jpg" ), observedImage );
+         bool found = IsModelInObserved( GetImage( "Banana.Stem1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.Stem2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.Stem3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.Stem4.jpg" ), observedImage );
+         return found;
+      }
+
+      public static bool HasBananaFlesh( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "Banana.FreshFlesh.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.RipeFlesh.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.VeryRipeFlesh.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.Internal.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.SuperFreshFlesh.jpg" ), observedImage );
+         return found;
+      }
+
+      public static bool HasStrawberrySeeds( this Image<Gray, byte> observedImage )
+      {
+         //bool found = IsModelInObserved( GetImage( "Strawberry.Seed1.jpg" ), observedImage );
+         return false;
       }
 
       private static Image<Gray, byte> GetImage( string resourceName )

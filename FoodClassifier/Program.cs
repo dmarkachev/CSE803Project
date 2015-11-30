@@ -16,6 +16,17 @@ namespace FoodClassifier
 {
    internal static class Program
    {
+      public enum FoodType
+      {
+         Banana,
+         Strawberry,
+         Cookie,
+         HotDog,
+         Broccoli,
+         FrenchFries,
+         Egg
+      }
+
       private static void Main( string[] args )
       {
          bool success = false;
@@ -104,11 +115,12 @@ namespace FoodClassifier
             {
                bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] ) &&
                                      ClassifyByTexture( pixelArray ) &&
-                                     ClassifyWithSurf( i, cvImage );
+                                     ClassifyWithSurf( (FoodType)i, cvImage );
                if ( classification )
                {
                   lock ( classificationLock )
                   {
+                     MessageBox.Show( ( (FoodType)i ).ToString() );
                      classifications[i] = true;
                   }
                }
@@ -198,16 +210,16 @@ namespace FoodClassifier
          return true;
       }
 
-      private static bool ClassifyWithSurf( int index, Image<Gray, byte> cvImage )
+      private static bool ClassifyWithSurf( FoodType foodType, Image<Gray, byte> cvImage )
       {
-         switch ( index )
+         switch ( foodType )
          {
-            case 0:
-            {
-               return SurfClassifier.HasBananaStem( cvImage ) && SurfClassifier.HasBananaFlesh( cvImage );
-            }
+            case FoodType.Banana:
+               return cvImage.HasBananaStem() && cvImage.HasBananaFlesh() && cvImage.HasLongBananaStem();
+            case FoodType.Strawberry:
+               return cvImage.HasStrawberrySeeds();
             default:
-               return true;
+               return false;
          }
       }
    }
