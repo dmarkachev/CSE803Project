@@ -381,6 +381,99 @@ namespace BitmapLibrary
 
                   int angleIntensity = Convert.ToInt32(angle);
 
+                  int gradientIntensity = Convert.ToInt32(gradientMagnitude);
+
+                  if (gradientIntensity > 255)
+                      gradientIntensity = 255;
+
+                  if ( angle < 5  && gradientIntensity> 80)
+                  {
+                      //pixel.SetPixelColors(0, 255, 0, index);
+                  }
+
+                  angleIntensity = Convert.ToInt32((255.0/360.0)*angleIntensity);
+
+                  if (gradientIntensity > 0 )
+                  {
+                      pixel.SetPixelColors(gradientIntensity, angleIntensity, 255, index);
+                  }
+                  else
+                  {
+                      pixel.SetPixelColors(0, 0, 0, index); 
+                  }
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
+
+      public static void GradientScaleBitmap2(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
+
+          var referencePixel = new PixelWrapper(backupPixelArray);
+          var pixel = new PixelWrapper(pixelByteArray);
+
+          for (int column = 0; column < bitmap.PixelWidth; column += 1)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
+              {
+                  int index = row * stride + 4 * column;
+
+                  int topLeftPixelIndex = index - stride - 4;
+                  int bottomLeftPixelIndex = index + stride - 4;
+                  int topPixelIndex = index - stride;
+                  int bottomPixelIndex = index + stride;
+                  int topRightPixelIndex = index - stride + 4;
+                  int bottomRightPixelIndex = index + stride + 4;
+                  int leftPixelIndex = index - 4;
+                  int rightPixelIndex = index + 4;
+
+                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
+                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
+
+                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex)) / 2.0;
+                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
+                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+
+                  double Fy = (DyL + DyM + DyR) / 3.0;
+                  double Fx = (DxT + DxM + DxB) / 3.0;
+
+                  if (Fx >= 0 && Fx < 0.0001)
+                  {
+                      Fx = 0.0001;
+                  }
+
+                  if (Fy >= 0 && Fy < 0.0001)
+                  {
+                      Fy = 0.0001;
+                  }
+
+                  if (Fx < 0 && Fx > -0.0001)
+                  {
+                      Fx = -0.0001;
+                  }
+
+                  if (Fy < 0 && Fy > -0.0001)
+                  {
+                      Fy = -0.0001;
+                  }
+
+                  double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
+
+                  double Theta = Math.Atan2(Fy, Fx);
+                  double angle = Theta * (180 / Math.PI) + 180;
+
+                  int angleIntensity = Convert.ToInt32(angle);
+
                   if (angleIntensity > 255)
                       angleIntensity = 255;
 
@@ -389,12 +482,12 @@ namespace BitmapLibrary
                   if (gradientIntensity > 255)
                       gradientIntensity = 255;
 
-                  if ( angle < 5  && gradientIntensity> 80)
+                  if (angle < 5 && gradientIntensity > 80)
                   {
-                     // pixel.SetPixelColors(0, 255, 0, index);
+                      // pixel.SetPixelColors(0, 255, 0, index);
                   }
-              
-                 pixel.SetPixelGreyColor(gradientIntensity,index);
+
+                  pixel.SetPixelGreyColor(gradientIntensity, index);
               }
           }
 
