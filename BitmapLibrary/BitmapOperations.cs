@@ -501,7 +501,7 @@ namespace BitmapLibrary
                       totalMag = 0;
                   else
                   {
-                      totalMag = totalMag / 100;
+                      totalMag = totalMag / 32;
                   }
 
                   if (totalMag > 255)
