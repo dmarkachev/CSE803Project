@@ -497,7 +497,12 @@ namespace BitmapLibrary
                   dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
                   totalMag += dotProduct;
 
-                  totalMag = totalMag/8.0;
+                  if (totalMag < 0.1)
+                      totalMag = 0;
+                  else
+                  {
+                      totalMag = totalMag / 100;
+                  }
 
                   if (totalMag > 255)
                   {
@@ -509,7 +514,35 @@ namespace BitmapLibrary
                   }
 
                   int finalMag = Convert.ToInt32(totalMag);
-                  pixel.SetPixelGreyColor(finalMag, index);
+                  int finalAngle = pixel.getGreen(index);
+                  pixel.SetPixelColors(finalMag, finalAngle, 255, index);
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
+      public static void GradientScaleBitmap3(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
+
+          var referencePixel = new PixelWrapper(backupPixelArray);
+          var pixel = new PixelWrapper(pixelByteArray);
+
+          for (int column = 0; column < bitmap.PixelWidth; column += 1)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
+              {
+                  int index = row * stride + 4 * column;
+
+                  int finalIntensity = pixel.getRed(index);
+                  pixel.SetPixelGreyColor(finalIntensity,index);
               }
           }
 
