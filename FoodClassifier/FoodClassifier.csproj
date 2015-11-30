@@ -109,6 +109,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub1.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub2.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub3.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\FreshBananaFlesh.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\InternalBanana.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\RipeBananaFlesh.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\VeryRipeBananaFlesh.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />

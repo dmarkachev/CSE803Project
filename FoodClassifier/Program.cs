@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
+using Emgu.CV;
+using Emgu.CV.Structure;
 using Color = System.Windows.Media.Color;
 
 namespace FoodClassifier
@@ -41,9 +44,9 @@ namespace FoodClassifier
 
          // Scale the image up if it is too small or down if it is too big
          double scale = 1.0;
-         if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400)
+         if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400 )
          {
-            scale = Math.Min( 400.0/bitmap.PixelWidth, 400.0/bitmap.PixelHeight );
+            scale = Math.Min( 400.0 / bitmap.PixelWidth, 400.0 / bitmap.PixelHeight );
          }
          else if ( bitmap.PixelHeight > 1000 && bitmap.PixelWidth > 1000 )
          {
@@ -64,11 +67,11 @@ namespace FoodClassifier
          properFormatBitmap.EndInit();
 
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
-
-         var classifications = ClassifyBitmap( writeableBitmap );
+         var cvImage = new Image<Gray, byte>( new Bitmap( args[0] ) );
+         var classifications = ClassifyBitmap( writeableBitmap, cvImage );
       }
 
-      private static List<bool> ClassifyBitmap( WriteableBitmap bitmap )
+      private static List<bool> ClassifyBitmap( WriteableBitmap bitmap, Image<Gray, byte> cvImage )
       {
          // Let's pick 7 items to classify
          var classifications = new List<bool>
@@ -101,7 +104,7 @@ namespace FoodClassifier
             {
                bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] ) &&
                                      ClassifyByTexture( pixelArray ) &&
-                                     StrongClassifier( pixelArray );
+                                     ClassifyWithSurf( i, cvImage );
                if ( classification )
                {
                   lock ( classificationLock )
@@ -163,7 +166,7 @@ namespace FoodClassifier
          var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
          tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
          var allBlobDistance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, Colors.Black );
-         if ( allBlobDistance <= 95 )
+         if ( allBlobDistance <= 105 )
          {
             return true;
          }
@@ -172,7 +175,7 @@ namespace FoodClassifier
          foreach ( var color in blobColors )
          {
             var distance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, color );
-            if ( distance <= 95 )
+            if ( distance <= 105 )
             {
                return true;
             }
@@ -195,9 +198,17 @@ namespace FoodClassifier
          return true;
       }
 
-      private static bool StrongClassifier( byte[] pixelArray )
+      private static bool ClassifyWithSurf( int index, Image<Gray, byte> cvImage )
       {
-         return true;
+         switch ( index )
+         {
+            case 0:
+            {
+               return SurfClassifier.HasBananaStem( cvImage ) && SurfClassifier.HasBananaFlesh( cvImage );
+            }
+            default:
+               return true;
+         }
       }
    }
 }
