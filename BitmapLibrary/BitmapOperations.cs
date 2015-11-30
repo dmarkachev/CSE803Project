@@ -436,58 +436,75 @@ namespace BitmapLibrary
                   int leftPixelIndex = index - 4;
                   int rightPixelIndex = index + 4;
 
-                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
-                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
-                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
+                  double A2 = 0;
+                  double I2 = 0;
+                  double dotProduct = 0;
+                  
+                  double A1 = referencePixel.getGreen(index)*(360/255.0);
+                  double I1 = referencePixel.getRed(index);
+                  double totalMag = I1;
 
-                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex)) / 2.0;
-                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
-                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+                  A2 = referencePixel.getGreen(topLeftPixelIndex)*(360/255.0);
+                  I2 = referencePixel.getRed(topLeftPixelIndex);
 
-                  double Fy = (DyL + DyM + DyR) / 3.0;
-                  double Fx = (DxT + DxM + DxB) / 3.0;
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
 
-                  if (Fx >= 0 && Fx < 0.0001)
+                  A2 = referencePixel.getGreen(bottomLeftPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomLeftPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+                  A2 = referencePixel.getGreen(topPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(topPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(bottomPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+
+                  A2 = referencePixel.getGreen(topRightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(topRightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(bottomRightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomRightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(leftPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(leftPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(rightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(rightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos(A2 - A1);
+                  totalMag += dotProduct;
+
+                  totalMag = totalMag/8.0;
+
+                  if (totalMag > 255)
                   {
-                      Fx = 0.0001;
+                      totalMag = 255;
+                  }
+                  if (totalMag < 0)
+                  {
+                      totalMag = 0;
                   }
 
-                  if (Fy >= 0 && Fy < 0.0001)
-                  {
-                      Fy = 0.0001;
-                  }
-
-                  if (Fx < 0 && Fx > -0.0001)
-                  {
-                      Fx = -0.0001;
-                  }
-
-                  if (Fy < 0 && Fy > -0.0001)
-                  {
-                      Fy = -0.0001;
-                  }
-
-                  double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
-
-                  double Theta = Math.Atan2(Fy, Fx);
-                  double angle = Theta * (180 / Math.PI) + 180;
-
-                  int angleIntensity = Convert.ToInt32(angle);
-
-                  if (angleIntensity > 255)
-                      angleIntensity = 255;
-
-                  int gradientIntensity = Convert.ToInt32(gradientMagnitude);
-
-                  if (gradientIntensity > 255)
-                      gradientIntensity = 255;
-
-                  if (angle < 5 && gradientIntensity > 80)
-                  {
-                      // pixel.SetPixelColors(0, 255, 0, index);
-                  }
-
-                  pixel.SetPixelGreyColor(gradientIntensity, index);
+                  int finalMag = Convert.ToInt32(totalMag);
+                  pixel.SetPixelGreyColor(finalMag, index);
               }
           }
 
