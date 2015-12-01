@@ -64,9 +64,27 @@ namespace FoodClassifier
          BitmapOperations.GradientScaleBitmap2(writeableBitmap);
          BitmapOperations.GradientScaleBitmap2(writeableBitmap);
          BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+         BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+         BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+         BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+         BitmapOperations.GradientScaleBitmap2(writeableBitmap);
          BitmapOperations.GradientScaleBitmap3(writeableBitmap);
-         BitmapOperations.ThresholdBitmap(writeableBitmap,1,true);
-          BitmapColorer.ColorBitmap(writeableBitmap);
+          BitmapOperations.ThresholdBitmap(writeableBitmap, 1, false);
+          
+         List<Color> colorlist = BitmapColorer.ColorBitmap(writeableBitmap);
+
+         foreach (Color aColor in colorlist)
+         {
+             Rect boundingBox = BitmapColorer.GetBoundingBoxOfColor(writeableBitmap, aColor);
+             ImageBlobInfo blobinfo = new ImageBlobInfo(writeableBitmap, aColor);
+
+             if (blobinfo.Area > 50)
+             {
+                 BitmapColorer.DrawRectangle(writeableBitmap,boundingBox);
+             }
+         }
+
+          //BitmapColorer.ColorBitmap(writeableBitmap);
 
          string fileName1 = directory + "\\outputImage.png";
          ExtensionMethods.Save(writeableBitmap, fileName1);

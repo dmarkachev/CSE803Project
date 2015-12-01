@@ -64,6 +64,11 @@ namespace BitmapLibrary
             }
          }
 
+         if (foundPixel == -1)
+         {
+             return null;
+         }
+
          // Follow the neighbors of the perimeter pixels until we come back to the start
          do
          {
@@ -501,7 +506,7 @@ namespace BitmapLibrary
                       totalMag = 0;
                   else
                   {
-                      totalMag = totalMag / 32;
+                      totalMag = totalMag/32;
                   }
 
                   if (totalMag > 255)

@@ -136,31 +136,35 @@ namespace BitmapLibrary
          perimeterBitmap.CopyPixels( perimeterPixelArray, stride, 0 );
 
          var perimeterPixelList = BitmapOperations.BuildPerimeterPath( perimeterPixelArray, bitmap.PixelHeight, bitmap.PixelWidth, stride );
-         for ( int i = 0; i < perimeterPixelList.Count; i++ )
-         {
-            int comparisonIndex = i + 1;
-            if ( i == perimeterPixelList.Count - 1 )
-            {
-               comparisonIndex = 0;
-            }
 
-            // If the current pixel and the next pixel are vertical or horizontal neighbors
-            if ( perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride ||
-                 perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride ||
-                 perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - 4 ||
-                 perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + 4 )
-            {
-               Perimeter++;
-            }
-            // If the current pixel and the next pixel are diagonal neighbors
-            else if ( perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride + 4 ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride - 4 ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride + 4 ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride - 4 )
-            {
-               Perimeter += 1.4;
-            }
-         }
+          if (perimeterPixelList != null)
+          {
+              for (int i = 0; i < perimeterPixelList.Count; i++)
+              {
+                  int comparisonIndex = i + 1;
+                  if (i == perimeterPixelList.Count - 1)
+                  {
+                      comparisonIndex = 0;
+                  }
+
+                  // If the current pixel and the next pixel are vertical or horizontal neighbors
+                  if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride ||
+                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride ||
+                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - 4 ||
+                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + 4)
+                  {
+                      Perimeter++;
+                  }
+                  // If the current pixel and the next pixel are diagonal neighbors
+                  else if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride + 4 ||
+                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride - 4 ||
+                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride + 4 ||
+                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride - 4)
+                  {
+                      Perimeter += 1.4;
+                  }
+              }
+          }
       }
 
       public Color Color { get; set; }
