@@ -114,7 +114,6 @@
     <EmbeddedResource Include="SurfImages\Banana\StemStub3.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\FreshFlesh.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\Internal.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\RipeFlesh.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\VeryRipeFlesh.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\Stem1.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\Stem2.jpg" />
@@ -122,6 +121,14 @@
     <EmbeddedResource Include="SurfImages\Banana\StemStub4.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\SuperFreshFlesh.jpg" />
     <EmbeddedResource Include="SurfImages\Banana\Stem4.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds1.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds2.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds3.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds4.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves1.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves2.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves3.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves4.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
@@ -147,9 +154,7 @@
     <Content Include="x86\opencv_video2410.dll" />
     <Content Include="x86\opencv_videostab2410.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SurfImages\Strawberry\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.1.29.3\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.1.29.3\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

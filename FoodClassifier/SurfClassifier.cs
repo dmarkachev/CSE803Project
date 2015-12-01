@@ -30,7 +30,6 @@ namespace FoodClassifier
       public static bool HasBananaFlesh( this Image<Gray, byte> observedImage )
       {
          bool found = IsModelInObserved( GetImage( "Banana.FreshFlesh.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Banana.RipeFlesh.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Banana.VeryRipeFlesh.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Banana.Internal.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Banana.SuperFreshFlesh.jpg" ), observedImage );
@@ -39,8 +38,20 @@ namespace FoodClassifier
 
       public static bool HasStrawberrySeeds( this Image<Gray, byte> observedImage )
       {
-         //bool found = IsModelInObserved( GetImage( "Strawberry.Seed1.jpg" ), observedImage );
-         return false;
+         bool found = IsModelInObserved( GetImage( "Strawberry.Seeds1.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds2.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds3.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds4.jpg" ), observedImage, 0.035 );
+         return found;
+      }
+
+      public static bool HasStrawberryLeaves( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "Strawberry.Leaves1.jpg" ), observedImage, 0.07 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Leaves2.jpg" ), observedImage, 0.07 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Leaves3.jpg" ), observedImage, 0.07 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Leaves4.jpg" ), observedImage, 0.07 );
+         return found;
       }
 
       private static Image<Gray, byte> GetImage( string resourceName )
@@ -51,7 +62,7 @@ namespace FoodClassifier
          return new Image<Gray, byte>( new Bitmap( imageStream ) );
       }
 
-      private static bool IsModelInObserved( Image<Gray, byte> modelImage, Image<Gray, byte> observedImage )
+      private static bool IsModelInObserved( Image<Gray, byte> modelImage, Image<Gray, byte> observedImage, double similarityThreshold = 0.075 )
       {
          var surfCpu = new SURFDetector(500, false);
 
@@ -89,7 +100,7 @@ namespace FoodClassifier
          }
 
          var similarity = (double)keypointMatchCount / mask.Height;
-         return similarity > 0.075;
+         return similarity > similarityThreshold;
       }
    }
 }
