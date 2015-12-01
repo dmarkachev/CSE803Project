@@ -53,115 +53,118 @@ namespace BitmapLibrary
             }
          }
          Centroid = new Point( c / Area, r / Area );
-
-         // Calculate Second-Order Moments
-         for ( int row = 0; row < height; row++ )
-         {
-            for ( int column = 0; column < width; column++ )
-            {
-               int index = row * stride + 4 * column;
-               var pixel = Pixel.GetPixel( pixelArray, index );
-               if ( pixel.Color == color )
-               {
-                  SecondRowMoment += Math.Pow( row - Centroid.Y, 2 );
-                  SecondMixedMoment += ( row - Centroid.Y ) * ( column - Centroid.X );
-                  SecondColumnMoment += Math.Pow( column - Centroid.X, 2 );
-               }
-            }
-         }
-         SecondRowMoment /= Area;
-         SecondMixedMoment /= Area;
-         SecondColumnMoment /= Area;
-
-         // Calculate Inertia
-         var theta = ( 2 * SecondMixedMoment ) / ( SecondColumnMoment - SecondRowMoment );
-         theta = Math.Atan( theta );
-         theta /= 2;
-
-         var otherTheta = theta + Math.PI / 2;
-
-         var inertiaOne = Math.Pow( Math.Sin( theta ), 2 ) * SecondColumnMoment +
-                          Math.Sin( theta ) * Math.Cos( theta ) * SecondMixedMoment +
-                          Math.Pow( Math.Cos( theta ), 2 ) * SecondRowMoment;
-
-         var inertiaTwo = Math.Pow( Math.Sin( otherTheta ), 2 ) * SecondColumnMoment +
-                          Math.Sin( otherTheta ) * Math.Cos( otherTheta ) * SecondMixedMoment +
-                          Math.Pow( Math.Cos( otherTheta ), 2 ) * SecondRowMoment;
-
-         MaxInertia = Math.Max( inertiaOne, inertiaTwo );
-         MinInertia = Math.Min( inertiaOne, inertiaTwo );
-
-         // Calculate Circulator
-         double mean = 0;
-         for ( int row = 0; row < height; row++ )
-         {
-            for ( int column = 0; column < width; column++ )
-            {
-               int index = row * stride + 4 * column;
-               var pixel = Pixel.GetPixel( pixelArray, index );
-               if ( pixel.Color == color )
-               {
-                  mean += Math.Sqrt( Math.Pow( column - Centroid.X, 2 ) + Math.Pow( row - Centroid.Y, 2 ) );
-               }
-            }
-         }
-         mean /= Area;
-
-         double standardDeviation = 0;
-         for ( int row = 0; row < height; row++ )
-         {
-            for ( int column = 0; column < width; column++ )
-            {
-               int index = row * stride + 4 * column;
-               var pixel = Pixel.GetPixel( pixelArray, index );
-               if ( pixel.Color == color )
-               {
-                  var value = Math.Sqrt( Math.Pow( column - Centroid.X, 2 ) + Math.Pow( row - Centroid.Y, 2 ) );
-                  value -= mean;
-                  value = Math.Pow( value, 2 );
-                  standardDeviation += value;
-               }
-            }
-         }
-         standardDeviation /= Area;
-         standardDeviation = Math.Sqrt( standardDeviation );
-
-         Circularity = mean / standardDeviation;
-
-         // Calculate Perimeter
-         var filteredBitmap = BitmapColorer.EraseAllButCertainColor( bitmap, color );
-         var perimeterBitmap = BitmapOperations.GetPerimeterBitmap( filteredBitmap );
-
-         byte[] perimeterPixelArray = new byte[perimeterBitmap.PixelHeight * stride];
-         perimeterBitmap.CopyPixels( perimeterPixelArray, stride, 0 );
-
-         var perimeterPixelList = BitmapOperations.BuildPerimeterPath( perimeterPixelArray, bitmap.PixelHeight, bitmap.PixelWidth, stride );
-
-          if (perimeterPixelList != null)
+          if (Area > 50.0)
           {
-              for (int i = 0; i < perimeterPixelList.Count; i++)
+              // Calculate Second-Order Moments
+              for (int row = 0; row < height; row++)
               {
-                  int comparisonIndex = i + 1;
-                  if (i == perimeterPixelList.Count - 1)
+                  for (int column = 0; column < width; column++)
                   {
-                      comparisonIndex = 0;
+                      int index = row*stride + 4*column;
+                      var pixel = Pixel.GetPixel(pixelArray, index);
+                      if (pixel.Color == color)
+                      {
+                          SecondRowMoment += Math.Pow(row - Centroid.Y, 2);
+                          SecondMixedMoment += (row - Centroid.Y)*(column - Centroid.X);
+                          SecondColumnMoment += Math.Pow(column - Centroid.X, 2);
+                      }
                   }
+              }
+              SecondRowMoment /= Area;
+              SecondMixedMoment /= Area;
+              SecondColumnMoment /= Area;
 
-                  // If the current pixel and the next pixel are vertical or horizontal neighbors
-                  if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - 4 ||
-                      perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + 4)
+              // Calculate Inertia
+              var theta = (2*SecondMixedMoment)/(SecondColumnMoment - SecondRowMoment);
+              theta = Math.Atan(theta);
+              theta /= 2;
+
+              var otherTheta = theta + Math.PI/2;
+
+              var inertiaOne = Math.Pow(Math.Sin(theta), 2)*SecondColumnMoment +
+                               Math.Sin(theta)*Math.Cos(theta)*SecondMixedMoment +
+                               Math.Pow(Math.Cos(theta), 2)*SecondRowMoment;
+
+              var inertiaTwo = Math.Pow(Math.Sin(otherTheta), 2)*SecondColumnMoment +
+                               Math.Sin(otherTheta)*Math.Cos(otherTheta)*SecondMixedMoment +
+                               Math.Pow(Math.Cos(otherTheta), 2)*SecondRowMoment;
+
+              MaxInertia = Math.Max(inertiaOne, inertiaTwo);
+              MinInertia = Math.Min(inertiaOne, inertiaTwo);
+
+              // Calculate Circulator
+              double mean = 0;
+              for (int row = 0; row < height; row++)
+              {
+                  for (int column = 0; column < width; column++)
                   {
-                      Perimeter++;
+                      int index = row*stride + 4*column;
+                      var pixel = Pixel.GetPixel(pixelArray, index);
+                      if (pixel.Color == color)
+                      {
+                          mean += Math.Sqrt(Math.Pow(column - Centroid.X, 2) + Math.Pow(row - Centroid.Y, 2));
+                      }
                   }
-                  // If the current pixel and the next pixel are diagonal neighbors
-                  else if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride + 4 ||
-                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride - 4 ||
-                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride + 4 ||
-                           perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride - 4)
+              }
+              mean /= Area;
+
+              double standardDeviation = 0;
+              for (int row = 0; row < height; row++)
+              {
+                  for (int column = 0; column < width; column++)
                   {
-                      Perimeter += 1.4;
+                      int index = row*stride + 4*column;
+                      var pixel = Pixel.GetPixel(pixelArray, index);
+                      if (pixel.Color == color)
+                      {
+                          var value = Math.Sqrt(Math.Pow(column - Centroid.X, 2) + Math.Pow(row - Centroid.Y, 2));
+                          value -= mean;
+                          value = Math.Pow(value, 2);
+                          standardDeviation += value;
+                      }
+                  }
+              }
+              standardDeviation /= Area;
+              standardDeviation = Math.Sqrt(standardDeviation);
+
+              Circularity = mean/standardDeviation;
+
+              // Calculate Perimeter
+              var filteredBitmap = BitmapColorer.EraseAllButCertainColor(bitmap, color);
+              var perimeterBitmap = BitmapOperations.GetPerimeterBitmap(filteredBitmap);
+
+              byte[] perimeterPixelArray = new byte[perimeterBitmap.PixelHeight*stride];
+              perimeterBitmap.CopyPixels(perimeterPixelArray, stride, 0);
+
+              var perimeterPixelList = BitmapOperations.BuildPerimeterPath(perimeterPixelArray, bitmap.PixelHeight,
+                  bitmap.PixelWidth, stride);
+
+              if (perimeterPixelList != null)
+              {
+                  for (int i = 0; i < perimeterPixelList.Count; i++)
+                  {
+                      int comparisonIndex = i + 1;
+                      if (i == perimeterPixelList.Count - 1)
+                      {
+                          comparisonIndex = 0;
+                      }
+
+                      // If the current pixel and the next pixel are vertical or horizontal neighbors
+                      if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride ||
+                          perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride ||
+                          perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - 4 ||
+                          perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + 4)
+                      {
+                          Perimeter++;
+                      }
+                      // If the current pixel and the next pixel are diagonal neighbors
+                      else if (perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride + 4 ||
+                               perimeterPixelList[i] == perimeterPixelList[comparisonIndex] + stride - 4 ||
+                               perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride + 4 ||
+                               perimeterPixelList[i] == perimeterPixelList[comparisonIndex] - stride - 4)
+                      {
+                          Perimeter += 1.4;
+                      }
                   }
               }
           }
