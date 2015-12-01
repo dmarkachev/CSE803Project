@@ -54,6 +54,15 @@ namespace FoodClassifier
          return found;
       }
 
+      public static bool HasCookieChips( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "Cookie.Chips1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips4.jpg" ), observedImage );
+         return found;
+      }
+
       private static Image<Gray, byte> GetImage( string resourceName )
       {
          var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream( "FoodClassifier.SurfImages." + resourceName );

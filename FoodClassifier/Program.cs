@@ -218,6 +218,8 @@ namespace FoodClassifier
                return cvImage.HasBananaStem() && cvImage.HasBananaFlesh() && cvImage.HasLongBananaStem();
             case FoodType.Strawberry:
                return cvImage.HasStrawberrySeeds() && cvImage.HasStrawberryLeaves();
+            case FoodType.Cookie:
+               return cvImage.HasCookieChips();
             default:
                return false;
          }

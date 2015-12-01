@@ -129,6 +129,10 @@
     <EmbeddedResource Include="SurfImages\Strawberry\Leaves2.jpg" />
     <EmbeddedResource Include="SurfImages\Strawberry\Leaves3.jpg" />
     <EmbeddedResource Include="SurfImages\Strawberry\Leaves4.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips1.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips2.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips3.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
