@@ -431,6 +431,244 @@ namespace BitmapLibrary
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
 
+      /// <summary>
+      /// Loops through all the pixels and averages the RGB values to grayscale the image
+      /// </summary>
+      /// <param name="bitmap">The bitmap to be grayscaled</param>
+      public static void GradientScaleBitmap(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
+
+          var referencePixel = new PixelWrapper(backupPixelArray);
+          var pixel = new PixelWrapper(pixelByteArray);
+
+          for (int column = 0; column < bitmap.PixelWidth; column += 1)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
+              {
+                  int index = row * stride + 4 * column;
+
+                  int topLeftPixelIndex = index - stride - 4;
+                  int bottomLeftPixelIndex = index + stride - 4;
+                  int topPixelIndex = index - stride;
+                  int bottomPixelIndex = index + stride;
+                  int topRightPixelIndex = index - stride + 4;
+                  int bottomRightPixelIndex = index + stride + 4;
+                  int leftPixelIndex = index - 4;
+                  int rightPixelIndex = index + 4;
+
+                  double DyL = (referencePixel.getGray(topLeftPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+                  double DyM = (referencePixel.getGray(topPixelIndex) - referencePixel.getGray(bottomPixelIndex)) / 2.0;
+                  double DyR = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(bottomRightPixelIndex)) / 2.0;
+
+                  double DxT = (referencePixel.getGray(topRightPixelIndex) - referencePixel.getGray(topLeftPixelIndex)) / 2.0;
+                  double DxM = (referencePixel.getGray(rightPixelIndex) - referencePixel.getGray(leftPixelIndex)) / 2.0;
+                  double DxB = (referencePixel.getGray(bottomRightPixelIndex) - referencePixel.getGray(bottomLeftPixelIndex)) / 2.0;
+
+                  double Fy = (DyL + DyM + DyR) / 3.0;
+                  double Fx = (DxT + DxM + DxB) / 3.0;
+
+                  if (Fx >= 0 && Fx < 0.0001)
+                  {
+                      Fx = 0.0001;
+                  }
+
+                  if (Fy >= 0 && Fy < 0.0001)
+                  {
+                      Fy = 0.0001;
+                  }
+
+                  if (Fx < 0 && Fx > -0.0001)
+                  {
+                      Fx = -0.0001;
+                  }
+
+                  if (Fy < 0 && Fy > -0.0001)
+                  {
+                      Fy = -0.0001;
+                  }
+
+                  double gradientMagnitude = Math.Pow(Math.Pow(Fx, 2) + Math.Pow(Fy, 2), 0.5);
+
+                  double Theta = Math.Atan2(Fy, Fx);
+                  double angle = Theta * (180 / Math.PI) + 180;
+
+                  int angleIntensity = Convert.ToInt32(angle);
+
+                  int gradientIntensity = Convert.ToInt32(gradientMagnitude);
+
+                  if (gradientIntensity > 255)
+                      gradientIntensity = 255;
+
+                  if (angle < 5 && gradientIntensity > 80)
+                  {
+                      //pixel.SetPixelColors(0, 255, 0, index);
+                  }
+
+                  angleIntensity = Convert.ToInt32((255.0 / 360.0) * angleIntensity);
+
+                  if (gradientIntensity > 0)
+                  {
+                      pixel.SetPixelColors(gradientIntensity, angleIntensity, 255, index);
+                  }
+                  else
+                  {
+                      pixel.SetPixelColors(0, 0, 0, index);
+                  }
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
+
+      public static void GradientScaleBitmap2(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
+
+          var referencePixel = new PixelWrapper(backupPixelArray);
+          var pixel = new PixelWrapper(pixelByteArray);
+
+          for (int column = 0; column < bitmap.PixelWidth; column += 1)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
+              {
+                  int index = row * stride + 4 * column;
+
+                  int topLeftPixelIndex = index - stride - 4;
+                  int bottomLeftPixelIndex = index + stride - 4;
+                  int topPixelIndex = index - stride;
+                  int bottomPixelIndex = index + stride;
+                  int topRightPixelIndex = index - stride + 4;
+                  int bottomRightPixelIndex = index + stride + 4;
+                  int leftPixelIndex = index - 4;
+                  int rightPixelIndex = index + 4;
+
+                  double A2 = 0;
+                  double I2 = 0;
+                  double dotProduct = 0;
+
+                  double A1 = referencePixel.getGreen(index) * (360 / 255.0);
+                  double I1 = referencePixel.getRed(index);
+                  double totalMag = I1;
+
+                  if (totalMag > 1)
+                  {
+
+                  }
+
+                  A2 = referencePixel.getGreen(topLeftPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(topLeftPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(bottomLeftPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomLeftPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+                  A2 = referencePixel.getGreen(topPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(topPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(bottomPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+
+                  A2 = referencePixel.getGreen(topRightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(topRightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(bottomRightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(bottomRightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(leftPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(leftPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  A2 = referencePixel.getGreen(rightPixelIndex) * (360 / 255.0);
+                  I2 = referencePixel.getRed(rightPixelIndex);
+
+                  dotProduct = I1 * I2 * Math.Cos((Math.PI / 180.0) * (A2 - A1));
+                  totalMag += dotProduct;
+
+                  if (totalMag < 0.1)
+                      totalMag = 0;
+                  else
+                  {
+                      totalMag = totalMag / 32;
+                  }
+
+                  if (totalMag > 255)
+                  {
+                      totalMag = 255;
+                  }
+                  if (totalMag < 0)
+                  {
+                      totalMag = 0;
+                  }
+
+                  int finalMag = Convert.ToInt32(totalMag);
+                  int finalAngle = pixel.getGreen(index);
+                  pixel.SetPixelColors(finalMag, finalAngle, 255, index);
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
+      public static void GradientScaleBitmap3(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          byte[] backupPixelArray = new byte[bitmap.PixelHeight * stride];
+
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+          bitmap.CopyPixels(backupPixelArray, stride, 0);
+
+          var referencePixel = new PixelWrapper(backupPixelArray);
+          var pixel = new PixelWrapper(pixelByteArray);
+
+          for (int column = 0; column < bitmap.PixelWidth; column += 1)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row += 1)
+              {
+                  int index = row * stride + 4 * column;
+
+                  int finalIntensity = pixel.getRed(index);
+                  pixel.SetPixelGreyColor(finalIntensity, index);
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
       public static void GaussianBlur( WriteableBitmap bitmap, int radius )
       {
          int sz = radius * 2 + 1;
