@@ -34,40 +34,40 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Emgu.CV, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.GPU, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.GPU.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.ML, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.ML.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.OCR, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.OCR.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.OpenCL, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.OpenCL.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.Stitching, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.Stitching.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.UI, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.UI.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.CV.VideoStab, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.CV.VideoStab.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Emgu.Util, Version=2.4.10.1939, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\VDK.EmguCV.x86.2.4.10\lib\Emgu.Util.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -109,30 +109,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
-    <EmbeddedResource Include="SurfImages\Banana\StemStub1.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\StemStub2.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\StemStub3.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\FreshFlesh.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\Internal.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\VeryRipeFlesh.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\Stem1.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\Stem2.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\Stem3.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\StemStub4.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\SuperFreshFlesh.jpg" />
-    <EmbeddedResource Include="SurfImages\Banana\Stem4.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Seeds1.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Seeds2.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Seeds3.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Seeds4.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Leaves1.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Leaves2.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Leaves3.jpg" />
-    <EmbeddedResource Include="SurfImages\Strawberry\Leaves4.jpg" />
-    <EmbeddedResource Include="SurfImages\Cookie\Chips1.jpg" />
-    <EmbeddedResource Include="SurfImages\Cookie\Chips2.jpg" />
-    <EmbeddedResource Include="SurfImages\Cookie\Chips3.jpg" />
-    <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
@@ -157,6 +133,30 @@
     <Content Include="x86\opencv_superres2410.dll" />
     <Content Include="x86\opencv_video2410.dll" />
     <Content Include="x86\opencv_videostab2410.dll" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub1.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub2.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub3.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\FreshFlesh.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\Internal.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\VeryRipeFlesh.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\Stem1.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\Stem2.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\Stem3.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\StemStub4.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\SuperFreshFlesh.jpg" />
+    <EmbeddedResource Include="SurfImages\Banana\Stem4.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds1.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds2.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds3.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Seeds4.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves1.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves2.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves3.jpg" />
+    <EmbeddedResource Include="SurfImages\Strawberry\Leaves4.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips1.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips2.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips3.jpg" />
+    <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
