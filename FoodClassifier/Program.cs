@@ -226,6 +226,11 @@ namespace FoodClassifier
                return cvImage.HasStrawberrySeeds() && cvImage.HasStrawberryLeaves();
             case FoodType.Cookie:
                return cvImage.HasCookieChips();
+            case FoodType.HotDog:
+               return cvImage.HasSausageBetweenBuns() && ( cvImage.HasSausage() || cvImage.HasSausageWithToppings() );
+            case FoodType.Broccoli:
+            case FoodType.FrenchFries:
+            case FoodType.Egg:
             default:
                return false;
          }

@@ -63,6 +63,34 @@ namespace FoodClassifier
          return found;
       }
 
+      public static bool HasSausage( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "HotDog.Sausage1.jpg" ), observedImage, 0.049 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage2.jpg" ), observedImage, 0.049 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage3.jpg" ), observedImage, 0.049 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage4.jpg" ), observedImage, 0.049 );
+                      IsModelInObserved( GetImage( "HotDog.Sausage5.jpg" ), observedImage, 0.049 );
+         return found;
+      }
+
+      public static bool HasSausageWithToppings( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "HotDog.SausageWithToppings1.jpg" ), observedImage, 0.05 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings2.jpg" ), observedImage, 0.05 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings3.jpg" ), observedImage, 0.05 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings4.jpg" ), observedImage, 0.05 );
+         return found;
+      }
+
+      public static bool HasSausageBetweenBuns( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns1.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns2.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns3.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns4.jpg" ), observedImage, 0.06 );
+         return found;
+      }
+
       private static Image<Gray, byte> GetImage( string resourceName )
       {
          var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream( "FoodClassifier.SurfImages." + resourceName );
@@ -108,7 +136,7 @@ namespace FoodClassifier
             }
          }
 
-         var similarity = (double)keypointMatchCount / mask.Height;
+         var similarity = (double)keypointMatchCount / observedKeyPoints.Size;
          return similarity > similarityThreshold;
       }
    }
