@@ -431,6 +431,19 @@ namespace BitmapLibrary
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
 
+       public static void DrawGradientScaleBitmap(WriteableBitmap writeableBitmap)
+       {
+           BitmapOperations.GrayscaleBitmap(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap3(writeableBitmap);
+           BitmapOperations.ThresholdBitmap(writeableBitmap, 1, true);
+       }
+
       /// <summary>
       /// Loops through all the pixels and averages the RGB values to grayscale the image
       /// </summary>
