@@ -116,6 +116,39 @@ namespace BitmapLibrary
          return normalize ? NormalizeBins( bins ) : bins;
       }
 
+      public static double[] GetColorBinsWithinBlob(byte[] pixelArray, byte[] thresholdedArray, bool normalize = false)
+      {
+          var bins = new double[64];
+
+          for (int i = 0; i < 64; i++)
+          {
+              bins[i] = 0;
+          }
+
+          for (int pixelIndex = 0; pixelIndex < pixelArray.Count(); pixelIndex += 4)
+          {
+              int pixelValue = Convert.ToInt32(thresholdedArray[pixelIndex]);
+
+              if (pixelValue == 0) // only count pixels within the blob in distance calculation
+              {
+                  byte colorRepresentation = 0;
+
+                  // Shift right 6 to get 2 high bits, then shift left for its position in the final byte
+                  byte highRed = (byte) ((pixelArray[pixelIndex + 2] >> 6) << 4);
+                  byte highGreen = (byte) ((pixelArray[pixelIndex + 1] >> 6) << 2);
+                  byte highBlue = (byte) (pixelArray[pixelIndex] >> 6);
+
+                  colorRepresentation |= highRed;
+                  colorRepresentation |= highGreen;
+                  colorRepresentation |= highBlue;
+
+                  bins[colorRepresentation]++;
+              }
+          }
+
+          return normalize ? NormalizeBins(bins) : bins;
+      }
+
       private static double[] NormalizeBins( double[] bins )
       {
          double total = 0.0;

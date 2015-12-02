@@ -27,10 +27,10 @@ namespace FoodClassifier
          Egg
       }
 
+       static string directory = "";
       private static void Main( string[] args )
       {
          bool success = false;
-         string directory = "";
          string fileName = "";
          if ( args.Length >= 1 )
          {
@@ -82,7 +82,7 @@ namespace FoodClassifier
 
          var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
-         BitmapOperations.analyzeBitmapGradient(bitmap, directory);
+       //  BitmapOperations.analyzeBitmapGradient(bitmap, directory);
 
       }
 
@@ -93,13 +93,13 @@ namespace FoodClassifier
          // Let's pick 7 items to classify
          var classifications = new List<bool>
          {
-            false, // banana
-            false, // strawberry
-            false, // cookie
-            false, // hotdog
-            false, // broccoli
-            false, // french fries
-            false  // egg
+            false, // banana 0
+            false, // strawberry 1
+            false, // cookie 2
+            false, // hotdog 3
+            false, // broccoli 4
+            false, // french fries 5
+            false  // egg 6
          };
 
          int stride = ( bitmap.PixelWidth*bitmap.Format.BitsPerPixel + 7 )/8;
@@ -163,7 +163,7 @@ namespace FoodClassifier
                var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
                var distance = ColorClassifier.CalculateBinDistance( colorBins, targetColor );
 
-               // Possible areas where the object we are looking for is are black
+               // Possible areas where the object we are looking for is are black 0
                byte newColor = distance >= 125 ? (byte)255 : (byte)0;
                for ( int i = 0; i < width; i++ )
                {
@@ -183,7 +183,12 @@ namespace FoodClassifier
          // object with a stricted threshold
          var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
          tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
-         var allBlobDistance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, Colors.Black );
+       
+       //  for debugging color classifier performance
+       //  string fileName1 = directory + "\\outputImage.png";
+       //  ExtensionMethods.Save(tempBitmap, fileName1);
+
+         var allBlobDistance = GetColorBinDistance(pixelArray, colorDistancePixelArray, stride, targetColor, tempBitmap, Colors.Black);
          if ( allBlobDistance <= 105 )
          {
             return true;
@@ -192,7 +197,7 @@ namespace FoodClassifier
          var blobColors = BitmapColorer.ColorBitmap( tempBitmap );
          foreach ( var color in blobColors )
          {
-            var distance = GetColorBinDistance( pixelArray, stride, targetColor, tempBitmap, color );
+            var distance = GetColorBinDistance( pixelArray, colorDistancePixelArray, stride, targetColor, tempBitmap, color );
             if ( distance <= 105 )
             {
                return true;
@@ -201,12 +206,13 @@ namespace FoodClassifier
          return false;
       }
 
-      private static double GetColorBinDistance( byte[] pixelArray, int stride, double[] targetHistogram, WriteableBitmap tempBitmap, Color color )
+      private static double GetColorBinDistance(byte[] pixelArray, byte[] thresholdedPixelArray, int stride, double[] targetHistogram, WriteableBitmap tempBitmap, Color color)
       {
          var boundingBox = BitmapColorer.GetBoundingBoxOfColor( tempBitmap, color );
 
          var croppedPixelArray = pixelArray.CropPixelArray( (int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride );
-         var colorBins = ColorClassifier.GetColorBins( croppedPixelArray, true );
+         var croppedThresholdedArray = thresholdedPixelArray.CropPixelArray((int)boundingBox.X, (int)boundingBox.Y, (int)boundingBox.Width, (int)boundingBox.Height, stride);
+         var colorBins = ColorClassifier.GetColorBinsWithinBlob(croppedPixelArray, croppedThresholdedArray, true);
          var distance = ColorClassifier.CalculateBinDistance( colorBins, targetHistogram );
          return distance;
       }
