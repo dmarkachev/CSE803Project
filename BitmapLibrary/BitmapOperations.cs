@@ -234,7 +234,7 @@ namespace BitmapLibrary
                foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
                {
                    // Only use blobs with area greater than some threshold
-                   if (targetBlob.Area > 50.0)
+                   if (targetBlob.Area > 200.0)
                    {
                        blobImg.Draw(targetBlob.BoundingBox, red, 1);
                        Rectangle rectangle = targetBlob.BoundingBox;
@@ -402,6 +402,40 @@ namespace BitmapLibrary
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
 
+       public static WriteableBitmap ResizeBitmap(BitmapImage bitmap)
+       {
+           // Resize to fit in 400x400 box for faster processing
+           double scale = Math.Min(400.0/bitmap.PixelWidth, 400.0/bitmap.PixelHeight);
+           var resizedBitmap = new BitmapImage();
+           resizedBitmap.BeginInit();
+           resizedBitmap.UriSource = bitmap.UriSource;
+           resizedBitmap.DecodePixelHeight = (int) (scale*bitmap.PixelHeight);
+           resizedBitmap.DecodePixelWidth = (int) (scale*bitmap.PixelWidth);
+           resizedBitmap.EndInit();
+
+           // Reformat to BGR
+           var properFormatBitmap = new FormatConvertedBitmap();
+           properFormatBitmap.BeginInit();
+           properFormatBitmap.Source = resizedBitmap;
+           properFormatBitmap.DestinationFormat = PixelFormats.Bgr32;
+           properFormatBitmap.EndInit();
+
+           var writeableBitmap = new WriteableBitmap(properFormatBitmap); // The ready to go bitmap
+
+           return writeableBitmap;
+       }
+
+       public static void analyzeBitmapGradient(BitmapImage bitmapImage, string saveDirectory)
+       {
+           var resizedWritableBitmap = BitmapOperations.ResizeBitmap(bitmapImage);
+
+           BitmapOperations.DrawGradientScaleBitmap(resizedWritableBitmap);
+           resizedWritableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(resizedWritableBitmap);
+
+           string fileName1 = saveDirectory + "\\outputImage.png";
+           ExtensionMethods.Save(resizedWritableBitmap, fileName1);
+       }
+
       /// <summary>
       /// Thresholds the supplied bitmap using the supplied theshold value
       /// </summary>
@@ -441,7 +475,7 @@ namespace BitmapLibrary
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap3(writeableBitmap);
-           BitmapOperations.ThresholdBitmap(writeableBitmap, 1, true);
+          // BitmapOperations.ThresholdBitmap(writeableBitmap, 10, false);
        }
 
       /// <summary>
@@ -634,7 +668,7 @@ namespace BitmapLibrary
                       totalMag = 0;
                   else
                   {
-                      totalMag = totalMag / 32;
+                      totalMag = totalMag / 20;
                   }
 
                   if (totalMag > 255)

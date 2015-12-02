@@ -79,12 +79,14 @@ namespace FoodClassifier
 
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
          var cvImage = new Image<Gray, byte>( new Bitmap( args[0] ) );
+
          var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
-         writeableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(writeableBitmap);
-         string fileName1 = directory + "\\outputImage.png";
-         ExtensionMethods.Save(writeableBitmap, fileName1);
+         BitmapOperations.analyzeBitmapGradient(bitmap, directory);
+
       }
+
+
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap, Image<Gray, byte> cvImage )
       {
