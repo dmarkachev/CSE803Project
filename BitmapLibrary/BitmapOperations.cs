@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace BitmapLibrary
 {
@@ -164,6 +168,95 @@ namespace BitmapLibrary
          return ordBitmap;
       }
 
+      /// <summary>
+      /// Convert an IImage to a WPF BitmapSource. The result can be used in the Set Property of Image.Source
+      /// </summary>
+      /// <param name="image">The Emgu CV Image</param>
+      /// <returns>The equivalent BitmapSource</returns>
+      private static BitmapSource ToBitmapSource(IImage image)
+      {
+          using (System.Drawing.Bitmap source = image.Bitmap)
+          {
+              IntPtr ptr = source.GetHbitmap(); //obtain the Hbitmap
+
+              BitmapSource bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                  ptr,
+                  IntPtr.Zero,
+                  Int32Rect.Empty,
+                  System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+
+              // DeleteObject(ptr); //release the HBitmap
+              return bs;
+          }
+      }
+
+      private static System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
+      {
+          System.Drawing.Bitmap bmp;
+          using (MemoryStream outStream = new MemoryStream())
+          {
+              BitmapEncoder enc = new BmpBitmapEncoder();
+              enc.Frames.Add(BitmapFrame.Create((BitmapSource)writeBmp));
+              enc.Save(outStream);
+              bmp = new System.Drawing.Bitmap(outStream);
+          }
+          return bmp;
+      }
+
+      public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap)
+       {
+           Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
+           var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
+
+           //var classifications = ClassifyBitmap( writeableBitmap, cvImage );
+           if (cvImage != null)
+           {
+               // This takes our nice looking color png and converts it to black and white
+               Image<Gray, byte> greyImg = cvImage.Convert<Gray, byte>();
+
+               // We again threshold it based on brightness...BUT WE INVERT THE PNG. BLOB DETECTOR DETECTS WHITE NOT BLACK
+               // this will esentially eliminate the color differences
+               // you could also do cool things like threshold only certain colors here for a color based blob detector
+               Image<Gray, Byte> greyThreshImg = greyImg.ThresholdBinaryInv(new Gray(150), new Gray(255));
+
+               Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
+               Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
+               uint numWebcamBlobsFound = bDetect.Detect(greyThreshImg, resultingImgBlobs);
+
+               // This is a simple way of just drawing all blobs reguardless of their size and not iterating through them
+               // It draws on top of whatever you input. I am inputting the threshold image. Specifying an alpha to draw with of 0.5 so its half transparent.
+               //Emgu.CV.Image<Bgr, byte> blobImg = bDetect.DrawBlobs(webcamThreshImg, resultingWebcamBlobs, Emgu.CV.Cvb.CvBlobDetector.BlobRenderType.Default, 0.5);
+
+               // Here we can iterate through each blob and use the slider to set a threshold then draw a red box around it
+               Image<Rgb, byte> blobImg = greyThreshImg.Convert<Rgb, byte>();
+               Rgb red = new Rgb(255, 0, 0);
+               // Lets try and iterate the blobs?
+               foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
+               {
+                   // Only use blobs with area greater than some threshold
+                   if (targetBlob.Area > 50.0)
+                   {
+                       blobImg.Draw(targetBlob.BoundingBox, red, 1);
+                       Rectangle rectangle = targetBlob.BoundingBox;
+                       Rect convertedRect = new Rect(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+                       BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
+                   }
+               }
+               // Does conversions so we can use wpf BitmapSources
+               BitmapSource wpfCompatibleInputSource = ToBitmapSource(cvImage);
+               BitmapSource wpfCompatibleThresholdSource = ToBitmapSource(greyThreshImg);
+               BitmapSource wpfCompatibleBlobSource = ToBitmapSource(blobImg);
+
+               //properFormatBitmap.Source = wpfCompatibleInputSource;
+               //thresholdImage.Source = wpfCompatibleThresholdSource;
+               // blobtrackImage.Source = wpfCompatibleBlobSource;
+
+               //    var writeableBitmap2 = new WriteableBitmap(properFormatBitmap); // The ready to go bitmap
+               
+           }
+
+           return writeableBitmap;
+       }
       /// <summary>
       /// Returns a copy of the given bitmap eroded by 1 pixel
       /// </summary>
