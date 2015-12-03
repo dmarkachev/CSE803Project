@@ -127,6 +127,12 @@
     <EmbeddedResource Include="SurfImages\Broccoli\Top3.jpg" />
     <EmbeddedResource Include="SurfImages\Broccoli\Top4.jpg" />
     <EmbeddedResource Include="SurfImages\Broccoli\Top5.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk1.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk2.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk3.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk4.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk5.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk6.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
@@ -177,7 +183,6 @@
     <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SurfImages\Egg\" />
     <Folder Include="SurfImages\FrenchFries\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -101,6 +101,17 @@ namespace FoodClassifier
          return found;
       }
 
+      public static bool HasEggYolk( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "Egg.Yolk1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk4.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk5.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk6.jpg" ), observedImage );
+         return found;
+      }
+
       private static Image<Gray, byte> GetImage( string resourceName )
       {
          var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream( "FoodClassifier.SurfImages." + resourceName );

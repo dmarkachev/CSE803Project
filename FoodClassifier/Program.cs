@@ -238,6 +238,7 @@ namespace FoodClassifier
                return cvImage.HasBroccoliTop();
             case FoodType.FrenchFries:
             case FoodType.Egg:
+               return cvImage.HasEggYolk();
             default:
                return false;
          }
