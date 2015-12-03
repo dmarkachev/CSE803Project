@@ -474,6 +474,16 @@ namespace BitmapLibrary
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
+           BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap3(writeableBitmap);
           // BitmapOperations.ThresholdBitmap(writeableBitmap, 10, false);
        }
@@ -668,7 +678,7 @@ namespace BitmapLibrary
                       totalMag = 0;
                   else
                   {
-                      totalMag = totalMag / 20;
+                      totalMag = totalMag / 24;
                   }
 
                   if (totalMag > 255)
