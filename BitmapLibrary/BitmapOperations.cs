@@ -225,6 +225,17 @@ namespace BitmapLibrary
            return result;
        }
 
+       public static WriteableBitmap RotateWriteableBitmap(WriteableBitmap writeableBitmap, double degrees)
+       {
+           Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
+           var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
+           cvImage = cvImage.Rotate(degrees, new Gray(0), false);
+           BitmapSource bitmapSource = ToBitmapSource(cvImage);
+           var rotatedWriteableBitmap = new WriteableBitmap(bitmapSource);
+
+           return rotatedWriteableBitmap;
+       }
+
       public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
