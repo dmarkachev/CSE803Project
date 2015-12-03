@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emgu.CV;
+using Emgu.CV.Cvb;
 using Emgu.CV.Structure;
 
 namespace BitmapLibrary
@@ -203,6 +204,27 @@ namespace BitmapLibrary
           return bmp;
       }
 
+      public static double ConvertToRadians(double angle)
+      {
+          return (Math.PI / 180) * angle;
+      }
+      public static double RadianToDegree(double angle)
+      {
+          return angle * (180.0 / Math.PI);
+      }
+
+       public static double CalculateBlobAngle(CvBlob blob)
+       {
+           //.5*atan2(2.*blob->u11,(blob->u20-blob->u02));
+
+           double dy = 2.0*blob.BlobMoments.U11;
+           double dx = blob.BlobMoments.U20 - blob.BlobMoments.U02;
+
+           double result = 0.5*Math.Atan2(dy, dx);
+
+           return result;
+       }
+
       public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
@@ -233,13 +255,19 @@ namespace BitmapLibrary
                // Lets try and iterate the blobs?
                foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
                {
+                   int imageArea = blobImg.Width*blobImg.Height;
+                   int blobArea = targetBlob.Area;
+                   int blobBoundingBoxArea = targetBlob.BoundingBox.Width*targetBlob.BoundingBox.Height;
+
                    // Only use blobs with area greater than some threshold
-                   if (targetBlob.Area > 200.0)
+                   // If the blob bounding rect is basically size of the whole image ignore it for now
+                   if (blobArea > 200.0 && blobBoundingBoxArea < (imageArea*0.99))
                    {
                        blobImg.Draw(targetBlob.BoundingBox, red, 1);
                        Rectangle rectangle = targetBlob.BoundingBox;
                        Rect convertedRect = new Rect(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
                        BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
+                       double blobAngle = RadianToDegree(CalculateBlobAngle(targetBlob));
                    }
                }
                // Does conversions so we can use wpf BitmapSources
@@ -430,6 +458,7 @@ namespace BitmapLibrary
            var resizedWritableBitmap = BitmapOperations.ResizeBitmap(bitmapImage);
 
            BitmapOperations.DrawGradientScaleBitmap(resizedWritableBitmap);
+
            resizedWritableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(resizedWritableBitmap);
 
            string fileName1 = saveDirectory + "\\outputImage.png";
