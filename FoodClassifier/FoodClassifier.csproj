@@ -133,6 +133,12 @@
     <EmbeddedResource Include="SurfImages\Egg\Yolk4.jpg" />
     <EmbeddedResource Include="SurfImages\Egg\Yolk5.jpg" />
     <EmbeddedResource Include="SurfImages\Egg\Yolk6.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part1.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part2.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part3.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part4.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part5.jpg" />
+    <EmbeddedResource Include="SurfImages\FrenchFries\Part6.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
@@ -182,9 +188,7 @@
     <EmbeddedResource Include="SurfImages\Cookie\Chips3.jpg" />
     <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SurfImages\FrenchFries\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.1.29.3\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.1.29.3\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

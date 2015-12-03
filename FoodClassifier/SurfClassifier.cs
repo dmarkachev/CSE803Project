@@ -112,6 +112,17 @@ namespace FoodClassifier
          return found;
       }
 
+      public static bool HasFrenchFryParts( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "FrenchFries.Part1.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part2.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part3.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part4.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part5.jpg" ), observedImage, 0.06 ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part6.jpg" ), observedImage, 0.06 );
+         return found;
+      }
+
       private static Image<Gray, byte> GetImage( string resourceName )
       {
          var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream( "FoodClassifier.SurfImages." + resourceName );
