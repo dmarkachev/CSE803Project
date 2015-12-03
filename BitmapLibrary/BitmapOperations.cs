@@ -504,6 +504,54 @@ namespace BitmapLibrary
          }
          bitmap.WritePixels( new Int32Rect( 0, 0, bitmap.PixelWidth, bitmap.PixelHeight ), pixelByteArray, stride, 0 );
       }
+      public static void CropThresholdBitmap(WriteableBitmap bitmap, int thickness, bool whiteCropBorder)
+      {
+          int objectValue = whiteCropBorder ? 255 : 0;
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+
+          for (int column = 0; column < bitmap.PixelWidth; column++)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row++)
+              {
+                  int index = row * stride + 4 * column;
+                  var whiteBlack = Convert.ToByte(objectValue);
+
+                  if (row >= 0 && row <= thickness)
+                  {
+                      pixelByteArray[index] = whiteBlack;
+                      pixelByteArray[index + 1] = whiteBlack;
+                      pixelByteArray[index + 2] = whiteBlack;
+                  }
+
+                  if (row >= (bitmap.PixelHeight - thickness) && row <= bitmap.PixelHeight)
+                  {
+                      pixelByteArray[index] = whiteBlack;
+                      pixelByteArray[index + 1] = whiteBlack;
+                      pixelByteArray[index + 2] = whiteBlack;
+                  }
+
+                  if (column >= 0 && column <= thickness)
+                  {
+                      pixelByteArray[index] = whiteBlack;
+                      pixelByteArray[index + 1] = whiteBlack;
+                      pixelByteArray[index + 2] = whiteBlack;
+                  }
+
+                  if (column >= (bitmap.PixelWidth - thickness) && column <= bitmap.PixelWidth)
+                  {
+                      pixelByteArray[index] = whiteBlack;
+                      pixelByteArray[index + 1] = whiteBlack;
+                      pixelByteArray[index + 2] = whiteBlack;
+                  }
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
 
        public static void DrawGradientScaleBitmap(WriteableBitmap writeableBitmap)
        {
@@ -525,7 +573,8 @@ namespace BitmapLibrary
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap3(writeableBitmap);
-          // BitmapOperations.ThresholdBitmap(writeableBitmap, 10, false);
+           BitmapOperations.ThresholdBitmap(writeableBitmap, 10, false);
+           BitmapOperations.CropThresholdBitmap(writeableBitmap, 5, false);
        }
 
       /// <summary>

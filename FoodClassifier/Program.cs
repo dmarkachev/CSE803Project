@@ -80,9 +80,9 @@ namespace FoodClassifier
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
          var cvImage = new Image<Gray, byte>( new Bitmap( args[0] ) );
 
-         var classifications = ClassifyBitmap( writeableBitmap, cvImage );
+       //  var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
-       //  BitmapOperations.analyzeBitmapGradient(bitmap, directory);
+         BitmapOperations.analyzeBitmapGradient(bitmap, directory);
 
       }
 
