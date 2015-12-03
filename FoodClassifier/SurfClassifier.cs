@@ -91,6 +91,16 @@ namespace FoodClassifier
          return found;
       }
 
+      public static bool HasBroccoliTop( this Image<Gray, byte> observedImage )
+      {
+         bool found = IsModelInObserved( GetImage( "Broccoli.Top1.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top2.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top3.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top4.jpg" ), observedImage, 0.035 ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top5.jpg" ), observedImage, 0.035 );
+         return found;
+      }
+
       private static Image<Gray, byte> GetImage( string resourceName )
       {
          var imageStream = Assembly.GetExecutingAssembly().GetManifestResourceStream( "FoodClassifier.SurfImages." + resourceName );

@@ -122,6 +122,11 @@
     <EmbeddedResource Include="SurfImages\HotDog\Sausage4.jpg" />
     <EmbeddedResource Include="SurfImages\HotDog\SausageBetweenBuns4.jpg" />
     <EmbeddedResource Include="SurfImages\HotDog\Sausage5.jpg" />
+    <EmbeddedResource Include="SurfImages\Broccoli\Top1.jpg" />
+    <EmbeddedResource Include="SurfImages\Broccoli\Top2.jpg" />
+    <EmbeddedResource Include="SurfImages\Broccoli\Top3.jpg" />
+    <EmbeddedResource Include="SurfImages\Broccoli\Top4.jpg" />
+    <EmbeddedResource Include="SurfImages\Broccoli\Top5.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
@@ -172,7 +177,6 @@
     <EmbeddedResource Include="SurfImages\Cookie\Chips4.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SurfImages\Broccoli\" />
     <Folder Include="SurfImages\Egg\" />
     <Folder Include="SurfImages\FrenchFries\" />
   </ItemGroup>

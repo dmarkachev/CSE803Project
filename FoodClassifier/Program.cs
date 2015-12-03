@@ -235,6 +235,7 @@ namespace FoodClassifier
             case FoodType.HotDog:
                return cvImage.HasSausageBetweenBuns() && ( cvImage.HasSausage() || cvImage.HasSausageWithToppings() );
             case FoodType.Broccoli:
+               return cvImage.HasBroccoliTop();
             case FoodType.FrenchFries:
             case FoodType.Egg:
             default:
