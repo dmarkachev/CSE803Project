@@ -242,7 +242,7 @@ namespace BitmapLibrary
            return rotatedWriteableBitmap;
        }
 
-      public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap)
+       public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap, WriteableBitmap gradientBitmapRef, WriteableBitmap realBitmapRef)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
            var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
@@ -554,9 +554,18 @@ namespace BitmapLibrary
        {
            var resizedWritableBitmap = BitmapOperations.ResizeBitmap(bitmapImage);
 
+           var referenceRealColor = resizedWritableBitmap.Clone();
+
            BitmapOperations.DrawGradientScaleBitmap(resizedWritableBitmap);
 
-           resizedWritableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(resizedWritableBitmap);
+           var referenceGradientBitmap = resizedWritableBitmap.Clone();
+
+           // Get Gradient Bitmap ready for Blob Detection (losing Angle info in pixels)
+           BitmapOperations.GradientScaleBitmap3(resizedWritableBitmap);
+           BitmapOperations.ThresholdBitmap(resizedWritableBitmap, 10, false);
+           BitmapOperations.CropThresholdBitmap(resizedWritableBitmap, 5, false);
+
+           resizedWritableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(resizedWritableBitmap, referenceGradientBitmap, referenceRealColor);
 
            string fileName1 = saveDirectory + "\\outputImage.png";
            ExtensionMethods.Save(resizedWritableBitmap, fileName1);
@@ -592,6 +601,7 @@ namespace BitmapLibrary
       }
       public static void CropThresholdBitmap(WriteableBitmap bitmap, int thickness, bool whiteCropBorder)
       {
+          // Not actually cropping just ignoring some border pixels in thresholded image
           int objectValue = whiteCropBorder ? 255 : 0;
           int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
 
@@ -749,9 +759,6 @@ namespace BitmapLibrary
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
            BitmapOperations.GradientScaleBitmap2(writeableBitmap);
-           BitmapOperations.GradientScaleBitmap3(writeableBitmap);
-           BitmapOperations.ThresholdBitmap(writeableBitmap, 10, false);
-           BitmapOperations.CropThresholdBitmap(writeableBitmap, 5, false);
        }
 
       /// <summary>
