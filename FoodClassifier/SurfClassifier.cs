@@ -30,74 +30,69 @@ namespace FoodClassifier
       public static bool HasBananaFlesh( this Image<Gray, byte> observedImage )
       {
          bool found = IsModelInObserved( GetImage( "Banana.FreshFlesh.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Banana.FreshFlesh2.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Banana.VeryRipeFlesh.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Banana.Internal.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Banana.SuperFreshFlesh.jpg" ), observedImage );
+                      IsModelInObserved( GetImage( "Banana.Internal.jpg" ), observedImage );
          return found;
       }
 
       public static bool HasStrawberrySeeds( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "Strawberry.Seeds1.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Seeds2.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Seeds3.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Seeds4.jpg" ), observedImage, 0.035 );
-         return found;
-      }
-
-      public static bool HasStrawberryLeaves( this Image<Gray, byte> observedImage )
-      {
-         bool found = IsModelInObserved( GetImage( "Strawberry.Leaves1.jpg" ), observedImage, 0.07 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Leaves2.jpg" ), observedImage, 0.07 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Leaves3.jpg" ), observedImage, 0.07 ) ||
-                      IsModelInObserved( GetImage( "Strawberry.Leaves4.jpg" ), observedImage, 0.07 );
+         bool found = IsModelInObserved( GetImage( "Strawberry.Seeds1.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds2.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds3.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds4.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds5.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds6.jpg" ), observedImage, 0.35 ) ||
+                      IsModelInObserved( GetImage( "Strawberry.Seeds7.jpg" ), observedImage, 0.35 );
          return found;
       }
 
       public static bool HasCookieChips( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "Cookie.Chips1.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Cookie.Chips2.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Cookie.Chips3.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Cookie.Chips4.jpg" ), observedImage );
+         bool found = IsModelInObserved( GetImage( "Cookie.Chips1.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips2.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips3.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips4.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "Cookie.Chips5.jpg" ), observedImage, 0.75 );
          return found;
       }
 
       public static bool HasSausage( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "HotDog.Sausage1.jpg" ), observedImage, 0.049 ) ||
-                      IsModelInObserved( GetImage( "HotDog.Sausage2.jpg" ), observedImage, 0.049 ) ||
-                      IsModelInObserved( GetImage( "HotDog.Sausage3.jpg" ), observedImage, 0.049 ) ||
-                      IsModelInObserved( GetImage( "HotDog.Sausage4.jpg" ), observedImage, 0.049 );
-                      IsModelInObserved( GetImage( "HotDog.Sausage5.jpg" ), observedImage, 0.049 );
+         bool found = IsModelInObserved( GetImage( "HotDog.Sausage1.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage2.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage3.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.Sausage4.jpg" ), observedImage, 0.75 );
+                      IsModelInObserved( GetImage( "HotDog.Sausage5.jpg" ), observedImage, 0.75 );
          return found;
       }
 
       public static bool HasSausageWithToppings( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "HotDog.SausageWithToppings1.jpg" ), observedImage, 0.05 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings2.jpg" ), observedImage, 0.05 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings3.jpg" ), observedImage, 0.05 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings4.jpg" ), observedImage, 0.05 );
+         bool found = IsModelInObserved( GetImage( "HotDog.SausageWithToppings1.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings2.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings3.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageWithToppings4.jpg" ), observedImage, 0.75 );
          return found;
       }
 
       public static bool HasSausageBetweenBuns( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns1.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns2.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns3.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns4.jpg" ), observedImage, 0.06 );
+         bool found = IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns1.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns2.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns3.jpg" ), observedImage, 0.75 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns4.jpg" ), observedImage, 0.75 );
          return found;
       }
 
       public static bool HasBroccoliTop( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "Broccoli.Top1.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Broccoli.Top2.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Broccoli.Top3.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Broccoli.Top4.jpg" ), observedImage, 0.035 ) ||
-                      IsModelInObserved( GetImage( "Broccoli.Top5.jpg" ), observedImage, 0.035 );
+         bool found = IsModelInObserved( GetImage( "Broccoli.Top1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top4.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Broccoli.Top5.jpg" ), observedImage );
          return found;
       }
 
@@ -114,12 +109,12 @@ namespace FoodClassifier
 
       public static bool HasFrenchFryParts( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "FrenchFries.Part1.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "FrenchFries.Part2.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "FrenchFries.Part3.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "FrenchFries.Part4.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "FrenchFries.Part5.jpg" ), observedImage, 0.06 ) ||
-                      IsModelInObserved( GetImage( "FrenchFries.Part6.jpg" ), observedImage, 0.06 );
+         bool found = IsModelInObserved( GetImage( "FrenchFries.Part1.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part2.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part3.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part4.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part5.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "FrenchFries.Part6.jpg" ), observedImage );
          return found;
       }
 
@@ -131,7 +126,7 @@ namespace FoodClassifier
          return new Image<Gray, byte>( new Bitmap( imageStream ) );
       }
 
-      private static bool IsModelInObserved( Image<Gray, byte> modelImage, Image<Gray, byte> observedImage, double similarityThreshold = 0.075 )
+      private static bool IsModelInObserved( Image<Gray, byte> modelImage, Image<Gray, byte> observedImage, double similarityThreshold = 0.5 )
       {
          var surfCpu = new SURFDetector(500, false);
 
@@ -168,8 +163,17 @@ namespace FoodClassifier
             }
          }
 
-         var similarity = (double)keypointMatchCount / observedKeyPoints.Size;
-         return similarity > similarityThreshold;
+
+         if ( observedKeyPoints.Size < modelKeyPoints.Size )
+         {
+            double similarity = (double)keypointMatchCount/observedKeyPoints.Size;
+            return similarity > similarityThreshold / 8;
+         }
+         else
+         {
+            double similarity = (double)keypointMatchCount/modelKeyPoints.Size;
+            return similarity > similarityThreshold;
+         }
       }
    }
 }

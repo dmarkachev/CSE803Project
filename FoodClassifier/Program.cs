@@ -207,11 +207,11 @@ namespace FoodClassifier
             sw.WriteLine( recognitionString );
             Console.WriteLine( recognitionString );
 
-            var timePerFile = elapsed.Seconds/files.Length;
+            var timePerFile = (double)elapsed.Seconds/files.Length;
             sw.WriteLine( "Average processing time per file:" + timePerFile );
-            Console.WriteLine( "Average processing time per file:" + timePerFile );
-            Console.ReadKey();
+            Console.WriteLine( "Average processing time per file: " + timePerFile );
          }
+         Console.ReadKey();
       }
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap, Image<Gray, byte> cvImage )
@@ -404,9 +404,9 @@ namespace FoodClassifier
          switch ( foodType )
          {
             case FoodType.Banana:
-               return cvImage.HasBananaStem() && cvImage.HasBananaFlesh() && cvImage.HasLongBananaStem();
+               return cvImage.HasBananaFlesh() && ( cvImage.HasBananaStem() || cvImage.HasLongBananaStem() );
             case FoodType.Strawberry:
-               return cvImage.HasStrawberrySeeds() && cvImage.HasStrawberryLeaves();
+               return cvImage.HasStrawberrySeeds();
             case FoodType.Cookie:
                return cvImage.HasCookieChips();
             case FoodType.HotDog:
