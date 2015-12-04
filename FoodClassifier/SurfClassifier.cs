@@ -79,10 +79,10 @@ namespace FoodClassifier
 
       public static bool HasSausageBetweenBuns( this Image<Gray, byte> observedImage )
       {
-         bool found = IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns1.jpg" ), observedImage, 0.75 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns2.jpg" ), observedImage, 0.75 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns3.jpg" ), observedImage, 0.75 ) ||
-                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns4.jpg" ), observedImage, 0.75 );
+         bool found = IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns1.jpg" ), observedImage, 0.7 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns2.jpg" ), observedImage, 0.7 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns3.jpg" ), observedImage, 0.7 ) ||
+                      IsModelInObserved( GetImage( "HotDog.SausageBetweenBuns4.jpg" ), observedImage, 0.7 );
          return found;
       }
 
@@ -103,7 +103,8 @@ namespace FoodClassifier
                       IsModelInObserved( GetImage( "Egg.Yolk3.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Egg.Yolk4.jpg" ), observedImage ) ||
                       IsModelInObserved( GetImage( "Egg.Yolk5.jpg" ), observedImage ) ||
-                      IsModelInObserved( GetImage( "Egg.Yolk6.jpg" ), observedImage );
+                      IsModelInObserved( GetImage( "Egg.Yolk6.jpg" ), observedImage ) ||
+                      IsModelInObserved( GetImage( "Egg.Yolk7.jpg" ), observedImage );
          return found;
       }
 
@@ -163,11 +164,10 @@ namespace FoodClassifier
             }
          }
 
-
          if ( observedKeyPoints.Size < modelKeyPoints.Size )
          {
             double similarity = (double)keypointMatchCount/observedKeyPoints.Size;
-            return similarity > similarityThreshold / 8;
+            return similarity > similarityThreshold / 10;
          }
          else
          {

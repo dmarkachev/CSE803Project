@@ -147,6 +147,7 @@
     <EmbeddedResource Include="SurfImages\Strawberry\Seeds5.jpg" />
     <EmbeddedResource Include="SurfImages\Strawberry\Seeds6.jpg" />
     <EmbeddedResource Include="SurfImages\Strawberry\Seeds7.jpg" />
+    <EmbeddedResource Include="SurfImages\Egg\Yolk7.jpg" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />
