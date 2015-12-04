@@ -309,20 +309,19 @@ namespace BitmapLibrary
                        if (areaCheck >= 200)
                        {
                            blobNumber++;
-                           var orientedBitmap = FlipThresholdBitmapIfNecessary(refinedBitmap, true);
 
-                           var thresholded = orientedBitmap.Clone();
+                           var thresholded = refinedBitmap.Clone();
                            ThresholdBitmap(thresholded, 10, false);
                            BitmapColorer.ColorBitmap(thresholded);
 
                            System.Windows.Media.Color blobColor = PixelColorOfCentralBlob(thresholded);
                            BitmapColorer.EraseAllButCertainColorandWhite(thresholded, blobColor);
 
+                           var orientedBitmap = FlipThresholdBitmapIfNecessary(thresholded, blobColor);
                            string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
-                           ExtensionMethods.Save(thresholded, fileName1);
+                           ExtensionMethods.Save(orientedBitmap, fileName1);
                        }
-
                    }
                }          
            }
@@ -627,10 +626,8 @@ namespace BitmapLibrary
           bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
       }
 
-      public static WriteableBitmap FlipThresholdBitmapIfNecessary(WriteableBitmap bitmap, bool countWhitePixels)
+      public static WriteableBitmap FlipThresholdBitmapIfNecessary(WriteableBitmap bitmap, System.Windows.Media.Color blobColor)
       {
-          int objectValue = countWhitePixels ? 255 : 0;
-
           int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
 
           int topCount = 0;
@@ -644,11 +641,13 @@ namespace BitmapLibrary
               for (int row = 0; row < bitmap.PixelHeight; row++)
               {
                   int index = row * stride + 4 * column;
-                  var whiteBlack = Convert.ToByte(objectValue);
 
-                  int pixelValue = Convert.ToInt32(pixelByteArray[index]);
+                  var pixelColor = new System.Windows.Media.Color();
 
-                  if (pixelValue == whiteBlack)
+                  pixelColor = System.Windows.Media.Color.FromRgb(pixelByteArray[index + 2],
+                      pixelByteArray[index + 1], pixelByteArray[index]);
+
+                  if (pixelColor == blobColor)
                   {
                       if (row < bitmap.PixelHeight/2.0)
                       {
@@ -662,7 +661,7 @@ namespace BitmapLibrary
               }
           }
 
-          if (topCount < bottomCount)
+          if (topCount > bottomCount)
           {
              return bitmap.Rotate(180);
           }
