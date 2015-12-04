@@ -250,6 +250,32 @@ namespace BitmapLibrary
          return newBitmap;
       }
 
+
+      public static void EraseAllButCertainColorandWhite(WriteableBitmap bitmap, System.Windows.Media.Color color)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+
+          for (int column = 0; column < bitmap.PixelWidth; column++)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row++)
+              {
+                  int index = row * stride + 4 * column;
+
+                  if (GetPixelColor(pixelByteArray, index) != color && GetPixelColor(pixelByteArray, index) != Colors.White)
+                  {
+                      pixelByteArray[index] = 0;
+                      pixelByteArray[index + 1] = 0;
+                      pixelByteArray[index + 2] = 0;
+                  }
+              }
+          }
+
+          bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
+      }
+
       /// <summary>
       /// Draws a red rectangle on the bitmap
       /// </summary>

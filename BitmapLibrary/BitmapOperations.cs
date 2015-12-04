@@ -315,7 +315,8 @@ namespace BitmapLibrary
                            ThresholdBitmap(thresholded, 10, false);
                            BitmapColorer.ColorBitmap(thresholded);
 
-                           PixelColorOfCentralBlob(thresholded);
+                           System.Windows.Media.Color blobColor = PixelColorOfCentralBlob(thresholded);
+                           BitmapColorer.EraseAllButCertainColorandWhite(thresholded, blobColor);
 
                            string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
