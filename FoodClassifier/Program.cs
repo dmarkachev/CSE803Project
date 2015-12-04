@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BitmapLibrary;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Color = System.Windows.Media.Color;
 
@@ -82,14 +83,13 @@ namespace FoodClassifier
 
          var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
          var cvImage = new Image<Gray, byte>( new Bitmap( args[0] ) );
+         cvImage = cvImage.Resize( scale, INTER.CV_INTER_CUBIC );
 
-       //  var classifications = ClassifyBitmap( writeableBitmap, cvImage );
+         // var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
          BitmapOperations.analyzeBitmapGradient(bitmap);
 
       }
-
-
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap, Image<Gray, byte> cvImage )
       {
@@ -113,44 +113,89 @@ namespace FoodClassifier
          int bitmapWidth = bitmap.PixelWidth;
          int bitmapHeight = bitmap.PixelHeight;
 
-         // Moving window to brute force search the image
-         // May need to adjust increments to increase accuracy
-         var classificationLock = new object();
+         // Lets limit the number of "distant" colors we classify
+         var colorDistances = new List<double>
+         {
+            0, // banana 0
+            0, // strawberry 1
+            0, // cookie 2
+            0, // hotdog 3
+            0, // broccoli 4
+            0, // french fries 5
+            0  // egg 6
+         };
+
+         // Get the color distances
          Parallel.For( 0, classifications.Count(), i =>
          {
-            // If we have not already identified this image as that object
-            // see if we can classify it with this window
-            if ( !classifications[i] )
+            colorDistances[i] = GetColorDistance( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] );
+            if ( colorDistances[i] < 50 )
             {
-               bool classification = ClassifyByColor( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] ) &&
-                                     ClassifyByTexture( pixelArray ) &&
-                                     ClassifyWithSurf( (FoodType)i, cvImage );
-               if ( classification )
-               {
-                  lock ( classificationLock )
-                  {
-                     MessageBox.Show( ( (FoodType)i ).ToString() );
-                     classifications[i] = true;
-                  }
-               }
+               // Always classify objects with this close a color
+               classifications[i] = ClassifyByTexture( pixelArray ) && ClassifyWithSurf( (FoodType)i, cvImage );
             }
          } );
+
+         // If we didn't have enough close color distances, classify some farther ones
+         var closeDistanceCount = colorDistances.Count( x => x < 50 );
+         if ( closeDistanceCount < 2 )
+         {
+            colorDistances.ForEach( x =>
+            {
+               if ( x < 50 )
+               {
+                  x = double.PositiveInfinity;
+               }
+            });
+
+            // Classify the closest color
+            var minValue = colorDistances.Min();
+            if ( minValue < 105 )
+            {
+               var indexOfMinValue = colorDistances.IndexOf( minValue );
+               classifications[indexOfMinValue] = ClassifyByTexture( pixelArray ) && ClassifyWithSurf( (FoodType)indexOfMinValue, cvImage );
+            }
+
+            if ( closeDistanceCount == 0 )
+            {
+               // Classify the second closest color
+               var secondMin = double.PositiveInfinity;
+               foreach ( var colorDistance in colorDistances )
+               {
+                  if ( colorDistance != minValue && colorDistance < secondMin )
+                  {
+                     secondMin = colorDistance;
+                  }
+               }
+               if ( secondMin < 105 )
+               {
+                  var indexOfSecondValue = colorDistances.IndexOf( secondMin );
+                  classifications[indexOfSecondValue] = ClassifyByTexture( pixelArray ) && ClassifyWithSurf( (FoodType)indexOfSecondValue, cvImage );
+               }
+            }          
+         }
+         
+         for ( int i = 0; i < classifications.Count(); i++ )
+         {
+            if ( classifications[i] )
+            {
+                  MessageBox.Show( ( (FoodType)i ).ToString() );
+            }
+         }
 
          return classifications;
       }
 
       /// <summary>
-      /// The weak classify that classifies by comparing the color histogram
-      /// of the given bitmap and returns true if it is close enough
-      /// to the target histogram
+      /// Returns the distance from the target color histogram the given pixel array is
       /// </summary>
-      /// <param name="pixelArray">The pixel array of the bitmap to classify</param>
+      /// <param name="pixelArray">The pixel array of the bitmap to get the distance of</param>
       /// <param name="bitmapWidth">The width of the bitmap</param>
       /// <param name="bitmapHeight">The height of the bitmap</param>
       /// <param name="stride">The number of bytes per row</param>
       /// <param name="targetColor">The histogram of the color of the target object</param>
-      /// <returns>True if this classifier thinks the bitmap is the object</returns>
-      private static bool ClassifyByColor( byte[] pixelArray, int bitmapWidth, int bitmapHeight, int stride, double[] targetColor )
+      /// <returns>The minimum distance a subrect of the image is from the target histogram</returns>
+      private static double GetColorDistance( byte[] pixelArray, int bitmapWidth, int bitmapHeight, int stride, double[] targetColor )
       {
          var colorDistancePixelArray = (byte[])pixelArray.Clone();
          var pixelArrayLock = new object();
@@ -186,27 +231,24 @@ namespace FoodClassifier
          // object with a stricted threshold
          var tempBitmap = new WriteableBitmap( bitmapWidth, bitmapHeight, 96, 96, PixelFormats.Bgr32, null );
          tempBitmap.WritePixels( new Int32Rect( 0, 0, bitmapWidth, bitmapHeight ), colorDistancePixelArray, stride, 0 );
-       
-       //  for debugging color classifier performance
-       //  string fileName1 = directory + "\\outputImage.png";
-       //  ExtensionMethods.Save(tempBitmap, fileName1);
 
+         double minDistance = double.PositiveInfinity;
          var allBlobDistance = GetColorBinDistance(pixelArray, colorDistancePixelArray, stride, targetColor, tempBitmap, Colors.Black);
          if ( allBlobDistance <= 105 )
          {
-            return true;
+            minDistance = allBlobDistance;
          }
 
          var blobColors = BitmapColorer.ColorBitmap( tempBitmap );
          foreach ( var color in blobColors )
          {
             var distance = GetColorBinDistance( pixelArray, colorDistancePixelArray, stride, targetColor, tempBitmap, color );
-            if ( distance <= 105 )
+            if ( distance <= minDistance )
             {
-               return true;
+               minDistance = distance;
             }
          }
-         return false;
+         return minDistance;
       }
 
       private static double GetColorBinDistance(byte[] pixelArray, byte[] thresholdedPixelArray, int stride, double[] targetHistogram, WriteableBitmap tempBitmap, Color color)
