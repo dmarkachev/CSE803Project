@@ -318,6 +318,9 @@ namespace BitmapLibrary
                            BitmapColorer.EraseAllButCertainColorandWhite(thresholded, blobColor);
 
                            var orientedBitmap = FlipThresholdBitmapIfNecessary(thresholded, blobColor);
+
+                           orientedBitmap = NormalizeBitmapSize(orientedBitmap);
+
                            string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
                            ExtensionMethods.Save(orientedBitmap, fileName1);
@@ -329,7 +332,16 @@ namespace BitmapLibrary
            return writeableBitmap;
        }
 
-       
+       public static WriteableBitmap NormalizeBitmapSize(WriteableBitmap bitmap)
+       {
+
+           float pixelWidth = bitmap.PixelWidth;
+
+           int height = Convert.ToInt32((bitmap.PixelHeight / pixelWidth) * 400);
+
+           return bitmap.Resize(400, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+       }
+
       public static WriteableBitmap DrawBlobBoundingBoxsAroundCroppedBitmap(WriteableBitmap writeableBitmap)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
