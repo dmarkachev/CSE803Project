@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -17,92 +18,220 @@ namespace FoodClassifier
 {
    internal static class Program
    {
+      public static List<int> FoodIgnoreList = new List<int> {0, 1, 4, 5, 8, 10, 11};
+
       public enum FoodType
       {
-         Banana,
-         Strawberry,
-         Cookie,
+         Salad,
+         Pasta,
          HotDog,
+         FrenchFry,
+         Burger,
+         Apple,
+         Banana,
          Broccoli,
-         FrenchFries,
-         Egg
+         Pizza,
+         Egg,
+         Tomato,
+         Rice,
+         Strawberry,
+         Cookie
       }
 
-       static string directory = "";
+      static string directory = "";
       private static void Main( string[] args )
       {
-         bool success = false;
-         string fileName = "";
          if ( args.Length >= 1 )
          {
             directory = Path.GetDirectoryName( args[0] );
-            fileName = Path.GetFileNameWithoutExtension( args[0] );
-
-            success = !string.IsNullOrEmpty( fileName );
          }
 
-         if ( !success )
+         if ( string.IsNullOrEmpty( directory ) )
          {
-            Console.WriteLine( "Could not parse arguments: FoodClassifier.exe <filepath>" );
+            Console.WriteLine( "Could not parse arguments: FoodClassifier.exe <targetDirectory>" );
             Console.ReadKey();
             return;
          }
-         if ( string.IsNullOrEmpty( directory ) )
+
+         // read in the "correct" labelling
+         var correctClassifications = new Dictionary<string, List<bool>>();
+         var numClassifications = new List<int> {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+         using ( var sr = new StreamReader( directory + @"\label.txt" ) )
          {
-            directory = "";
+            while ( !sr.EndOfStream )
+            {
+               var line = sr.ReadLine();
+               var splitValues = line.Split();
+               var classifications = new List<bool>
+               {
+                  false, // Salad      0
+                  false, // Pasta      1
+                  false, // HotDog     2
+                  false, // FrenchFry  3
+                  false, // Burger     4
+                  false, // Apple      5
+                  false, // Banana     6
+                  false, // Broccoli   7
+                  false, // Pizza      8
+                  false, // Egg        9
+                  false, // Tomato     10
+                  false, // Rice       11
+                  false, // Strawberry 12
+                  false  // Cookie     13
+               };
+
+               for ( int i = 1; i < splitValues.Length; i++ )
+               {
+                  for ( int j = 0; j < classifications.Count(); j++ )
+                  {
+                     if ( splitValues[i] == ( (FoodType)j ).ToString().ToLower() )
+                     {
+                        classifications[j] = true;
+                        numClassifications[j]++;
+                     }
+                  }
+               }
+               correctClassifications[splitValues[0]] = classifications;
+            }
          }
 
-         var bitmap = new BitmapImage( new Uri( args[0], string.IsNullOrEmpty( directory ) ? UriKind.Relative : UriKind.Absolute ) );
-
-        // give this directory to the bitmap operations class
-         BitmapOperations.saveDirectory = directory;
-
-         // Scale the image up if it is too small or down if it is too big
-         double scale = 1.0;
-         if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400 )
+         var score = new[,]
          {
-            scale = Math.Min( 400.0 / bitmap.PixelWidth, 400.0 / bitmap.PixelHeight );
-         }
-         else if ( bitmap.PixelHeight > 1000 && bitmap.PixelWidth > 1000 )
+            {0, 0},  // Salad      0
+            {0, 0},  // Pasta      1
+            {0, 0},  // HotDog     2
+            {0, 0},  // FrenchFry  3
+            {0, 0},  // Burger     4
+            {0, 0},  // Apple      5
+            {0, 0},  // Banana     6
+            {0, 0},  // Broccoli   7
+            {0, 0},  // Pizza      8
+            {0, 0},  // Egg        9
+            {0, 0},  // Tomato     10
+            {0, 0},  // Rice       11
+            {0, 0},  // Strawberry 12
+            {0, 0}   // Cookie     13
+         };
+
+         var files = Directory.GetFiles( directory );
+         var elapsed = TimeSpan.Zero;
+         using ( var sw = new StreamWriter( directory + @"\RESULTS.txt" ) )
          {
-            scale = Math.Min( 1000.0 / bitmap.PixelWidth, 1000.0 / bitmap.PixelHeight );
+            foreach ( var file in files )
+            {
+               var stopwatch = new Stopwatch();
+               stopwatch.Start();
+               var extension = Path.GetExtension( file );
+               if ( extension.ToLower() != ".jpg" )
+               {
+                  continue;
+               }
+
+               var bitmap = new BitmapImage( new Uri( file, UriKind.Absolute ) );
+
+               // give this directory to the bitmap operations class
+               BitmapOperations.saveDirectory = directory;
+
+               // Scale the image up if it is too small or down if it is too big
+               double scale = 1.0;
+               if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400 )
+               {
+                  scale = Math.Min( 400.0 / bitmap.PixelWidth, 400.0 / bitmap.PixelHeight );
+               }
+               else if ( bitmap.PixelHeight > 1000 && bitmap.PixelWidth > 1000 )
+               {
+                  scale = Math.Min( 1000.0 / bitmap.PixelWidth, 1000.0 / bitmap.PixelHeight );
+               }
+               var resizedBitmap = new BitmapImage();
+               resizedBitmap.BeginInit();
+               resizedBitmap.UriSource = bitmap.UriSource;
+               resizedBitmap.DecodePixelHeight = (int)( scale * bitmap.PixelHeight );
+               resizedBitmap.DecodePixelWidth = (int)( scale * bitmap.PixelWidth );
+               resizedBitmap.EndInit();
+
+               // Reformat to BGR
+               var properFormatBitmap = new FormatConvertedBitmap();
+               properFormatBitmap.BeginInit();
+               properFormatBitmap.Source = resizedBitmap;
+               properFormatBitmap.DestinationFormat = PixelFormats.Bgr32;
+               properFormatBitmap.EndInit();
+
+               var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
+               var cvImage = new Image<Gray, byte>( new Bitmap( file ) );
+               cvImage = cvImage.Resize( scale, INTER.CV_INTER_CUBIC );
+
+               var classifications = ClassifyBitmap( writeableBitmap, cvImage );
+
+               stopwatch.Stop();
+               elapsed = elapsed.Add( stopwatch.Elapsed );
+
+               // Mark down where we were correct for recognition rate
+               var fileName = Path.GetFileNameWithoutExtension( file );
+               fileName = fileName + Path.GetExtension( file ).ToLower();
+               var correctClassification = correctClassifications[fileName];
+               for ( int i = 0; i < classifications.Count(); i++ )
+               {
+                  if ( classifications[i] == correctClassification[i] )
+                  {
+                     if ( classifications[i] )
+                     {
+                        score[i, 0]++;
+                     }
+                     else
+                     {
+                        score[i, 1]++;
+                     }
+                  }                 
+               }
+
+               // Write the results to file
+               var classificationString = "";
+               for ( int i = 0; i < classifications.Count(); i++ )
+               {
+                  if ( classifications[i] )
+                  {
+                     classificationString += " " + (FoodType)i;
+                  }
+               }
+               sw.WriteLine( fileName + classificationString.ToLower() );
+               Console.WriteLine( fileName + classificationString.ToLower() );
+            }
+
+            // Write the recognition rate scores
+            var recognitionString = "";
+            for ( int i = 0; i < 13; i++ )
+            {
+               var recognitionRate = 0.5*( (double)score[i, 0]/numClassifications[i] + (double)score[i, 1]/(files.Length - numClassifications[i]) );
+               recognitionString += Math.Round( recognitionRate, 2, MidpointRounding.AwayFromZero ) + " ";
+            }
+            sw.WriteLine( recognitionString );
+            Console.WriteLine( recognitionString );
+
+            var timePerFile = elapsed.Seconds/files.Length;
+            sw.WriteLine( "Average processing time per file:" + timePerFile );
+            Console.WriteLine( "Average processing time per file:" + timePerFile );
+            Console.ReadKey();
          }
-         var resizedBitmap = new BitmapImage();
-         resizedBitmap.BeginInit();
-         resizedBitmap.UriSource = bitmap.UriSource;
-         resizedBitmap.DecodePixelHeight = (int)( scale * bitmap.PixelHeight );
-         resizedBitmap.DecodePixelWidth = (int)( scale * bitmap.PixelWidth );
-         resizedBitmap.EndInit();
-
-         // Reformat to BGR
-         var properFormatBitmap = new FormatConvertedBitmap();
-         properFormatBitmap.BeginInit();
-         properFormatBitmap.Source = resizedBitmap;
-         properFormatBitmap.DestinationFormat = PixelFormats.Bgr32;
-         properFormatBitmap.EndInit();
-
-         var writeableBitmap = new WriteableBitmap( properFormatBitmap ); // The ready to go bitmap
-         var cvImage = new Image<Gray, byte>( new Bitmap( args[0] ) );
-         cvImage = cvImage.Resize( scale, INTER.CV_INTER_CUBIC );
-
-         // var classifications = ClassifyBitmap( writeableBitmap, cvImage );
-
-         BitmapOperations.analyzeBitmapGradient(bitmap);
-
       }
 
       private static List<bool> ClassifyBitmap( WriteableBitmap bitmap, Image<Gray, byte> cvImage )
       {
-         // Let's pick 7 items to classify
          var classifications = new List<bool>
          {
-            false, // banana 0
-            false, // strawberry 1
-            false, // cookie 2
-            false, // hotdog 3
-            false, // broccoli 4
-            false, // french fries 5
-            false  // egg 6
+            false,   // Salad      0
+            false,   // Pasta      1
+            false,   // HotDog     2
+            false,   // FrenchFry  3
+            false,   // Burger     4
+            false,   // Apple      5
+            false,   // Banana     6
+            false,   // Broccoli   7
+            false,   // Pizza      8
+            false,   // Egg        9
+            false,   // Tomato     10
+            false,   // Rice       11
+            false,   // Strawberry 12
+            false    // Cookie     13
          };
 
          int stride = ( bitmap.PixelWidth*bitmap.Format.BitsPerPixel + 7 )/8;
@@ -116,18 +245,29 @@ namespace FoodClassifier
          // Lets limit the number of "distant" colors we classify
          var colorDistances = new List<double>
          {
-            0, // banana 0
-            0, // strawberry 1
-            0, // cookie 2
-            0, // hotdog 3
-            0, // broccoli 4
-            0, // french fries 5
-            0  // egg 6
+            double.PositiveInfinity, // Salad      0
+            double.PositiveInfinity, // Pasta      1
+            double.PositiveInfinity, // HotDog     2
+            double.PositiveInfinity, // FrenchFry  3
+            double.PositiveInfinity, // Burger     4
+            double.PositiveInfinity, // Apple      5
+            double.PositiveInfinity, // Banana     6
+            double.PositiveInfinity, // Broccoli   7
+            double.PositiveInfinity, // Pizza      8
+            double.PositiveInfinity, // Egg        9
+            double.PositiveInfinity, // Tomato     10
+            double.PositiveInfinity, // Rice       11
+            double.PositiveInfinity, // Strawberry 12
+            double.PositiveInfinity  // Cookie     13
          };
 
          // Get the color distances
          Parallel.For( 0, classifications.Count(), i =>
          {
+            if ( FoodIgnoreList.Contains( i ) )
+            {
+               return;
+            }
             colorDistances[i] = GetColorDistance( pixelArray, bitmapWidth, bitmapHeight, stride, ClassificationColorBins.FoodColors[i] );
             if ( colorDistances[i] < 50 )
             {
@@ -175,14 +315,6 @@ namespace FoodClassifier
             }          
          }
          
-         for ( int i = 0; i < classifications.Count(); i++ )
-         {
-            if ( classifications[i] )
-            {
-                  MessageBox.Show( ( (FoodType)i ).ToString() );
-            }
-         }
-
          return classifications;
       }
 
@@ -281,7 +413,7 @@ namespace FoodClassifier
                return cvImage.HasSausageBetweenBuns() && ( cvImage.HasSausage() || cvImage.HasSausageWithToppings() );
             case FoodType.Broccoli:
                return cvImage.HasBroccoliTop();
-            case FoodType.FrenchFries:
+            case FoodType.FrenchFry:
                return cvImage.HasFrenchFryParts();
             case FoodType.Egg:
                return cvImage.HasEggYolk();

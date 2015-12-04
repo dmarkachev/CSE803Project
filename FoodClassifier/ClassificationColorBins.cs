@@ -480,15 +480,22 @@ namespace FoodClassifier
          26.472
       };
 
-      public static List<double[]> FoodColors = new List<double[]>
+      public static readonly List<double[]> FoodColors = new List<double[]>
       {
-         BananaTemplate,
-         StrawberryTemplate,
-         CookieTemplate,
+         new double[0],
+         new double[0],
          HotdogTemplate,
-         BroccoliTemplate,
          FrenchFryTemplate,
-         EggTemplate
+         new double[0],
+         new double[0],
+         BananaTemplate,
+         BroccoliTemplate,
+         new double[0],
+         EggTemplate,
+         new double[0],
+         new double[0],
+         StrawberryTemplate,
+         CookieTemplate
       };
    }
 }
