@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.Cvb;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
 namespace BitmapLibrary
@@ -227,11 +228,14 @@ namespace BitmapLibrary
            return result;
        }
 
-       public static WriteableBitmap RotateWriteableBitmap(WriteableBitmap writeableBitmap, double degrees)
+       public static WriteableBitmap RotateWriteableBitmap(WriteableBitmap writeableBitmap, double degrees, int x, int y)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
            var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
-           cvImage = cvImage.Rotate(degrees, new Gray(0), false);
+           cvImage = cvImage.Rotate(degrees, new Gray(0), true);
+           var centroid = new PointF(x,y);
+           cvImage = cvImage.Rotate(degrees, centroid, INTER.CV_INTER_LINEAR, new Gray(0), false);
+     //      cvImage = cvImage.Rotate(degrees, new Gray(0), false);
            BitmapSource bitmapSource = ToBitmapSource(cvImage);
            var rotatedWriteableBitmap = new WriteableBitmap(bitmapSource);
 
@@ -265,6 +269,9 @@ namespace BitmapLibrary
                // Here we can iterate through each blob and use the slider to set a threshold then draw a red box around it
                Image<Rgb, byte> blobImg = greyThreshImg.Convert<Rgb, byte>();
                Rgb red = new Rgb(255, 0, 0);
+
+               int blobNumber = 0;
+
                // Lets try and iterate the blobs?
                foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
                {
@@ -276,11 +283,35 @@ namespace BitmapLibrary
                    // If the blob bounding rect is basically size of the whole image ignore it for now
                    if (blobArea > 200.0 && blobBoundingBoxArea < (imageArea*0.99))
                    {
-                       blobImg.Draw(targetBlob.BoundingBox, red, 1);
+                       blobNumber++;
                        Rectangle rectangle = targetBlob.BoundingBox;
-                       Rect convertedRect = new Rect(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+
+                       int CentroidX = (int)targetBlob.Centroid.X;
+                       int CentroidY = (int)targetBlob.Centroid.Y;
+
+                       int croppedWidth = rectangle.Width + 50;
+                       int croppedHeight = rectangle.Height + 50;
+
+                       int CroppedX = CentroidX - (int)(croppedWidth / 2.0);
+                       int CroppedY = CentroidY - (int)(croppedHeight / 2.0);
+
+                       var croppedBlobBitmap = writeableBitmap.Crop(CroppedX, CroppedY, croppedWidth, croppedHeight);
+                       double blobAngle = -RadianToDegree(CalculateBlobAngle(targetBlob));
+
+                       CroppedX = (int) (croppedWidth/2.0);
+                       CroppedY = (int) (croppedHeight/2.0);
+
+                       /*
+                       Rect centroidRect = new Rect(x-5, y-5, 10, 10);
+                       BitmapColorer.DrawRectangle(writeableBitmap, centroidRect);
                        BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
-                       double blobAngle = RadianToDegree(CalculateBlobAngle(targetBlob));
+                       */
+
+                       var rotatedandCroppedBlobBitmap = croppedBlobBitmap.RotateFree(blobAngle, false);
+
+                       string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
+
+                       ExtensionMethods.Save(rotatedandCroppedBlobBitmap, fileName1);     
                    }
                }
                // Does conversions so we can use wpf BitmapSources

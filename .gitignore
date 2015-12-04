@@ -195,3 +195,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 JimsRandomImageFolder/outputImage.png
+JimsRandomImageFolder/croppedBlob1.png
+JimsRandomImageFolder/croppedBlob2.png
+JimsRandomImageFolder/croppedBlob3.png
+JimsRandomImageFolder/croppedBlob4.png
