@@ -286,8 +286,8 @@ namespace BitmapLibrary
                        int CentroidX = (int)targetBlob.Centroid.X;
                        int CentroidY = (int)targetBlob.Centroid.Y;
 
-                       int croppedWidth = rectangle.Width + 30;
-                       int croppedHeight = rectangle.Height + 30;
+                       int croppedWidth = rectangle.Width + 50;
+                       int croppedHeight = rectangle.Height + 50;
 
                        int CroppedX = CentroidX - (int)(croppedWidth / 2.0);
                        int CroppedY = CentroidY - (int)(croppedHeight / 2.0);
@@ -299,32 +299,58 @@ namespace BitmapLibrary
                        CroppedX = (int) (croppedWidth/2.0);
                        CroppedY = (int) (croppedHeight/2.0);
 
-                       /*
-                       Rect centroidRect = new Rect(x-5, y-5, 10, 10);
-                       BitmapColorer.DrawRectangle(writeableBitmap, centroidRect);
-                       BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
-                       */
-
-                      // var rotatedandCroppedBlobBitmap = croppedBlobBitmap.RotateFree(blobAngle, false);
                        var rotatedandCroppedBlobBitmap = RotateWriteableBitmap(croppedBlobBitmap, blobAngle);
-                       rotatedandCroppedBlobBitmap = FlipThresholdBitmapIfNecessary(rotatedandCroppedBlobBitmap, true);
+
+                       var refinedBitmap = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap);
+                       var orientedBitmap = FlipThresholdBitmapIfNecessary(refinedBitmap, true);
 
                        string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
-                       ExtensionMethods.Save(rotatedandCroppedBlobBitmap, fileName1);     
+                       ExtensionMethods.Save(orientedBitmap, fileName1);     
                    }
-               }
-               // Does conversions so we can use wpf BitmapSources
-               BitmapSource wpfCompatibleInputSource = ToBitmapSource(cvImage);
-               BitmapSource wpfCompatibleThresholdSource = ToBitmapSource(greyThreshImg);
-               BitmapSource wpfCompatibleBlobSource = ToBitmapSource(blobImg);
+               }          
+           }
 
-               //properFormatBitmap.Source = wpfCompatibleInputSource;
-               //thresholdImage.Source = wpfCompatibleThresholdSource;
-               // blobtrackImage.Source = wpfCompatibleBlobSource;
+           return writeableBitmap;
+       }
 
-               //    var writeableBitmap2 = new WriteableBitmap(properFormatBitmap); // The ready to go bitmap
-               
+       
+      public static WriteableBitmap DrawBlobBoundingBoxsAroundCroppedBitmap(WriteableBitmap writeableBitmap)
+       {
+           Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
+           var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
+
+           if (cvImage != null)
+           {
+               Image<Gray, byte> greyImg = cvImage.Convert<Gray, byte>();
+
+               Image<Gray, Byte> greyThreshImg = greyImg.ThresholdBinaryInv(new Gray(150), new Gray(255));
+
+               Emgu.CV.Cvb.CvBlobs resultingImgBlobs = new Emgu.CV.Cvb.CvBlobs();
+               Emgu.CV.Cvb.CvBlobDetector bDetect = new Emgu.CV.Cvb.CvBlobDetector();
+               uint numWebcamBlobsFound = bDetect.Detect(greyThreshImg, resultingImgBlobs);
+
+               Image<Rgb, byte> blobImg = greyThreshImg.Convert<Rgb, byte>();
+               Rgb red = new Rgb(255, 0, 0);
+
+               int blobNumber = 0;
+
+               foreach (Emgu.CV.Cvb.CvBlob targetBlob in resultingImgBlobs.Values)
+               {
+                   int imageArea = blobImg.Width*blobImg.Height;
+                   int blobArea = targetBlob.Area;
+                   int blobBoundingBoxArea = targetBlob.BoundingBox.Width*targetBlob.BoundingBox.Height;
+
+                   if (blobArea > 200.0 && blobBoundingBoxArea < (imageArea*0.99))
+                   {
+                       blobNumber++;
+                       Rectangle rectangle = targetBlob.BoundingBox;
+                       Rect convertedRect = new Rect(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20, rectangle.Height + 20);
+                       //BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
+
+                       writeableBitmap = writeableBitmap.Crop(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20, rectangle.Height + 20);
+                   }
+               }           
            }
 
            return writeableBitmap;
