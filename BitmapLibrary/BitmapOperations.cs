@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -9,6 +11,7 @@ using Emgu.CV;
 using Emgu.CV.Cvb;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using Color = System.Drawing.Color;
 
 namespace BitmapLibrary
 {
@@ -279,8 +282,7 @@ namespace BitmapLibrary
                    // Only use blobs with area greater than some threshold
                    // If the blob bounding rect is basically size of the whole image ignore it for now
                    if (blobArea > 200.0 && blobBoundingBoxArea < (imageArea*0.99))
-                   {
-                       blobNumber++;
+                   {                       
                        Rectangle rectangle = targetBlob.BoundingBox;
 
                        int CentroidX = (int)targetBlob.Centroid.X;
@@ -302,11 +304,24 @@ namespace BitmapLibrary
                        var rotatedandCroppedBlobBitmap = RotateWriteableBitmap(croppedBlobBitmap, blobAngle);
 
                        var refinedBitmap = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap);
-                       var orientedBitmap = FlipThresholdBitmapIfNecessary(refinedBitmap, true);
+                       var areaCheck = refinedBitmap.PixelHeight*refinedBitmap.PixelWidth;
 
-                       string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
+                       if (areaCheck >= 200)
+                       {
+                           blobNumber++;
+                           var orientedBitmap = FlipThresholdBitmapIfNecessary(refinedBitmap, true);
 
-                       ExtensionMethods.Save(orientedBitmap, fileName1);     
+                           var thresholded = orientedBitmap.Clone();
+                           ThresholdBitmap(thresholded, 10, false);
+                           BitmapColorer.ColorBitmap(thresholded);
+
+                           PixelColorOfCentralBlob(thresholded);
+
+                           string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
+
+                           ExtensionMethods.Save(thresholded, fileName1);
+                       }
+
                    }
                }          
            }
@@ -656,6 +671,50 @@ namespace BitmapLibrary
           }
       }
 
+
+      public static System.Windows.Media.Color PixelColorOfCentralBlob(WriteableBitmap bitmap)
+      {
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          ConcurrentDictionary<System.Windows.Media.Color, int > colorDict = 
+              new ConcurrentDictionary<System.Windows.Media.Color, int>();
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+
+          //Draw a Horizontal Line accross the middle
+          for (int column = 0; column < bitmap.PixelWidth; column++)
+          {
+                  var color = new System.Windows.Media.Color();
+
+                  int row = (int)(bitmap.PixelHeight/2.0);
+                  int index = row * stride + 4 * column;
+
+                  int R = Convert.ToInt32(pixelByteArray[index+2]);
+                  int G = Convert.ToInt32(pixelByteArray[index+1]);
+                  int B = Convert.ToInt32(pixelByteArray[index]);
+
+                  color = System.Windows.Media.Color.FromRgb(pixelByteArray[index + 2],
+                      pixelByteArray[index + 1], pixelByteArray[index]);
+
+              if (!(R == 255 && B == 255 && G == 255) && !(R== 0 && B == 0 && G == 0))
+              {
+                  colorDict.AddOrUpdate(color, 1, (id, count) => count + 1);  
+              }
+          }
+
+          int maxValue = 0;
+          var colorKey  = new System.Windows.Media.Color();
+          foreach (var item in colorDict)
+          {
+              if (item.Value > maxValue)
+              {
+                  colorKey = item.Key;
+                  maxValue = item.Value;
+              }
+          }
+          return colorKey;
+      }
 
 
 
