@@ -242,6 +242,18 @@ namespace BitmapLibrary
            return rotatedWriteableBitmap;
        }
 
+
+       public static WriteableBitmap RotateColorWriteableBitmap(WriteableBitmap writeableBitmap, double degrees)
+       {
+           Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
+           var cvImage = new Image<Bgr, byte>(new Bitmap(normalBitmap));
+           cvImage = cvImage.Rotate(degrees, new Bgr(0,0,0), false);
+           BitmapSource bitmapSource = ToBitmapSource(cvImage);
+           var rotatedWriteableBitmap = new WriteableBitmap(bitmapSource);
+
+           return rotatedWriteableBitmap;
+       }
+
        public static WriteableBitmap DrawBlobBoundingBoxsCV(WriteableBitmap writeableBitmap, WriteableBitmap gradientBitmapRef, WriteableBitmap realBitmapRef)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
@@ -295,6 +307,8 @@ namespace BitmapLibrary
                        int CroppedY = CentroidY - (int)(croppedHeight / 2.0);
 
                        var croppedBlobBitmap = writeableBitmap.Crop(CroppedX, CroppedY, croppedWidth, croppedHeight);
+                       var croppedGradientBlobBitmap = gradientBitmapRef.Crop(CroppedX, CroppedY, croppedWidth, croppedHeight);
+                       var croppedRealBitmapRef = realBitmapRef.Crop(CroppedX, CroppedY, croppedWidth, croppedHeight);
 
                        double blobAngle = -RadianToDegree(CalculateBlobAngle(targetBlob));
 
@@ -302,8 +316,14 @@ namespace BitmapLibrary
                        CroppedY = (int) (croppedHeight/2.0);
 
                        var rotatedandCroppedBlobBitmap = RotateWriteableBitmap(croppedBlobBitmap, blobAngle);
+                       var rotatedGradientBlobBitmap = RotateColorWriteableBitmap(croppedGradientBlobBitmap, blobAngle);
+                       var rotatedRealBitmapRef = RotateColorWriteableBitmap(croppedRealBitmapRef, blobAngle);
 
-                       var refinedBitmap = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap);
+                       var refinedBitmap = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap, rotatedGradientBlobBitmap, rotatedRealBitmapRef, 1);
+                       rotatedGradientBlobBitmap = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap, rotatedGradientBlobBitmap, rotatedRealBitmapRef, 2);
+                       rotatedRealBitmapRef = DrawBlobBoundingBoxsAroundCroppedBitmap(rotatedandCroppedBlobBitmap, rotatedGradientBlobBitmap, rotatedRealBitmapRef, 3);
+
+
                        var areaCheck = refinedBitmap.PixelHeight*refinedBitmap.PixelWidth;
 
                        if (areaCheck >= 200)
@@ -317,13 +337,22 @@ namespace BitmapLibrary
                            System.Windows.Media.Color blobColor = PixelColorOfCentralBlob(thresholded);
                            BitmapColorer.EraseAllButCertainColorandWhite(thresholded, blobColor);
 
-                           var orientedBitmap = FlipThresholdBitmapIfNecessary(thresholded, blobColor);
+                           var shouldFlip = shouldFlipThresholdedBitmap(thresholded, blobColor);
 
-                           orientedBitmap = NormalizeBitmapSize(orientedBitmap);
+                           if (shouldFlip)
+                           {
+                               thresholded = thresholded.Rotate(180);
+                               rotatedGradientBlobBitmap = rotatedGradientBlobBitmap.Rotate(180);
+                               rotatedRealBitmapRef = rotatedRealBitmapRef.Rotate(180);
+                           }
+
+                           var orientedBitmap = NormalizeBitmapSize(thresholded);
+                           var orientedGradientBitmap = NormalizeBitmapSize(rotatedGradientBlobBitmap);
+                           var orientedRealBitmap = NormalizeBitmapSize(rotatedRealBitmapRef);
 
                            string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
-                           ExtensionMethods.Save(orientedBitmap, fileName1);
+                           ExtensionMethods.Save(orientedRealBitmap, fileName1);
                        }
                    }
                }          
@@ -342,7 +371,8 @@ namespace BitmapLibrary
            return bitmap.Resize(400, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
        }
 
-      public static WriteableBitmap DrawBlobBoundingBoxsAroundCroppedBitmap(WriteableBitmap writeableBitmap)
+       public static WriteableBitmap DrawBlobBoundingBoxsAroundCroppedBitmap(WriteableBitmap writeableBitmap,
+           WriteableBitmap gradientBitmapRef, WriteableBitmap realBitmapRef, int returnBitmapIndex)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
            var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
@@ -372,16 +402,33 @@ namespace BitmapLibrary
                    {
                        blobNumber++;
                        Rectangle rectangle = targetBlob.BoundingBox;
-                       Rect convertedRect = new Rect(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20, rectangle.Height + 20);
+                       Rect convertedRect = new Rect(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20,
+                           rectangle.Height + 20);
                        //BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
 
-                       writeableBitmap = writeableBitmap.Crop(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20, rectangle.Height + 20);
+                       writeableBitmap = writeableBitmap.Crop(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20,
+                           rectangle.Height + 20);
+                       gradientBitmapRef = gradientBitmapRef.Crop(rectangle.X - 10, rectangle.Y - 10,
+                           rectangle.Width + 20, rectangle.Height + 20);
+                       realBitmapRef = realBitmapRef.Crop(rectangle.X - 10, rectangle.Y - 10, rectangle.Width + 20,
+                           rectangle.Height + 20);
                    }
-               }           
+               }
+           }
+           if (returnBitmapIndex == 1)
+           {
+               return writeableBitmap;
+           }
+           else if (returnBitmapIndex == 2)
+           {
+               return gradientBitmapRef;
+           }
+           else
+           {
+               return realBitmapRef;
            }
 
-           return writeableBitmap;
-       }
+   }
       /// <summary>
       /// Returns a copy of the given bitmap eroded by 1 pixel
       /// </summary>
@@ -552,23 +599,23 @@ namespace BitmapLibrary
 
        public static void analyzeBitmapGradient(BitmapImage bitmapImage)
        {
-           var resizedWritableBitmap = BitmapOperations.ResizeBitmap(bitmapImage);
+           var resizedWritableBitmap = ResizeBitmap(bitmapImage);
 
            var referenceRealColor = resizedWritableBitmap.Clone();
 
-           BitmapOperations.DrawGradientScaleBitmap(resizedWritableBitmap);
+           DrawGradientScaleBitmap(resizedWritableBitmap);
 
            var referenceGradientBitmap = resizedWritableBitmap.Clone();
 
            // Get Gradient Bitmap ready for Blob Detection (losing Angle info in pixels)
-           BitmapOperations.GradientScaleBitmap3(resizedWritableBitmap);
-           BitmapOperations.ThresholdBitmap(resizedWritableBitmap, 10, false);
-           BitmapOperations.CropThresholdBitmap(resizedWritableBitmap, 5, false);
+           GradientScaleBitmap3(resizedWritableBitmap);
+           ThresholdBitmap(resizedWritableBitmap, 10, false);
+           CropThresholdBitmap(resizedWritableBitmap, 5, false);
 
-           resizedWritableBitmap = BitmapOperations.DrawBlobBoundingBoxsCV(resizedWritableBitmap, referenceGradientBitmap, referenceRealColor);
+           resizedWritableBitmap = DrawBlobBoundingBoxsCV(resizedWritableBitmap, referenceGradientBitmap, referenceRealColor);
 
            string fileName1 = saveDirectory + "\\outputImage.png";
-           ExtensionMethods.Save(resizedWritableBitmap, fileName1);
+           ExtensionMethods.Save(referenceRealColor, fileName1);
        }
 
       /// <summary>
@@ -648,7 +695,7 @@ namespace BitmapLibrary
           bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
       }
 
-      public static WriteableBitmap FlipThresholdBitmapIfNecessary(WriteableBitmap bitmap, System.Windows.Media.Color blobColor)
+      public static bool shouldFlipThresholdedBitmap(WriteableBitmap bitmap, System.Windows.Media.Color blobColor)
       {
           int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
 
@@ -685,11 +732,11 @@ namespace BitmapLibrary
 
           if (topCount > bottomCount)
           {
-             return bitmap.Rotate(180);
+             return true;
           }
           else
           {
-              return bitmap;
+              return false;
           }
       }
 
