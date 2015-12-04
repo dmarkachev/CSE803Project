@@ -81,6 +81,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WriteableBitmapEx.Wpf">
+      <HintPath>..\packages\WriteableBitmapEx.1.5.0.0\lib\net40\WriteableBitmapEx.Wpf.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClassificationColorBins.cs" />

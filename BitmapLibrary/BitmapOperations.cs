@@ -11,8 +11,10 @@ using Emgu.CV.Structure;
 
 namespace BitmapLibrary
 {
+   
    public static class BitmapOperations
    {
+       public static string saveDirectory = "";
       /// <summary>
       /// A simplified way of creating a writeable bitmap
       /// </summary>
@@ -464,7 +466,7 @@ namespace BitmapLibrary
            return writeableBitmap;
        }
 
-       public static void analyzeBitmapGradient(BitmapImage bitmapImage, string saveDirectory)
+       public static void analyzeBitmapGradient(BitmapImage bitmapImage)
        {
            var resizedWritableBitmap = BitmapOperations.ResizeBitmap(bitmapImage);
 

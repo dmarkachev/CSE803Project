@@ -53,6 +53,9 @@ namespace FoodClassifier
 
          var bitmap = new BitmapImage( new Uri( args[0], string.IsNullOrEmpty( directory ) ? UriKind.Relative : UriKind.Absolute ) );
 
+        // give this directory to the bitmap operations class
+         BitmapOperations.saveDirectory = directory;
+
          // Scale the image up if it is too small or down if it is too big
          double scale = 1.0;
          if ( bitmap.PixelHeight < 400 && bitmap.PixelWidth < 400 )
@@ -82,7 +85,7 @@ namespace FoodClassifier
 
        //  var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
-         BitmapOperations.analyzeBitmapGradient(bitmap, directory);
+         BitmapOperations.analyzeBitmapGradient(bitmap);
 
       }
 
