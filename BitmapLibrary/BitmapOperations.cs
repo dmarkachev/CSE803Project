@@ -228,14 +228,11 @@ namespace BitmapLibrary
            return result;
        }
 
-       public static WriteableBitmap RotateWriteableBitmap(WriteableBitmap writeableBitmap, double degrees, int x, int y)
+       public static WriteableBitmap RotateWriteableBitmap(WriteableBitmap writeableBitmap, double degrees)
        {
            Bitmap normalBitmap = BitmapFromWriteableBitmap(writeableBitmap);
            var cvImage = new Image<Gray, byte>(new Bitmap(normalBitmap));
-           cvImage = cvImage.Rotate(degrees, new Gray(0), true);
-           var centroid = new PointF(x,y);
-           cvImage = cvImage.Rotate(degrees, centroid, INTER.CV_INTER_LINEAR, new Gray(0), false);
-     //      cvImage = cvImage.Rotate(degrees, new Gray(0), false);
+           cvImage = cvImage.Rotate(degrees, new Gray(0), false);
            BitmapSource bitmapSource = ToBitmapSource(cvImage);
            var rotatedWriteableBitmap = new WriteableBitmap(bitmapSource);
 
@@ -289,13 +286,14 @@ namespace BitmapLibrary
                        int CentroidX = (int)targetBlob.Centroid.X;
                        int CentroidY = (int)targetBlob.Centroid.Y;
 
-                       int croppedWidth = rectangle.Width + 50;
-                       int croppedHeight = rectangle.Height + 50;
+                       int croppedWidth = rectangle.Width + 30;
+                       int croppedHeight = rectangle.Height + 30;
 
                        int CroppedX = CentroidX - (int)(croppedWidth / 2.0);
                        int CroppedY = CentroidY - (int)(croppedHeight / 2.0);
 
                        var croppedBlobBitmap = writeableBitmap.Crop(CroppedX, CroppedY, croppedWidth, croppedHeight);
+
                        double blobAngle = -RadianToDegree(CalculateBlobAngle(targetBlob));
 
                        CroppedX = (int) (croppedWidth/2.0);
@@ -307,7 +305,9 @@ namespace BitmapLibrary
                        BitmapColorer.DrawRectangle(writeableBitmap, convertedRect);
                        */
 
-                       var rotatedandCroppedBlobBitmap = croppedBlobBitmap.RotateFree(blobAngle, false);
+                      // var rotatedandCroppedBlobBitmap = croppedBlobBitmap.RotateFree(blobAngle, false);
+                       var rotatedandCroppedBlobBitmap = RotateWriteableBitmap(croppedBlobBitmap, blobAngle);
+                       rotatedandCroppedBlobBitmap = FlipThresholdBitmapIfNecessary(rotatedandCroppedBlobBitmap, true);
 
                        string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
@@ -584,6 +584,53 @@ namespace BitmapLibrary
 
           bitmap.WritePixels(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight), pixelByteArray, stride, 0);
       }
+
+      public static WriteableBitmap FlipThresholdBitmapIfNecessary(WriteableBitmap bitmap, bool countWhitePixels)
+      {
+          int objectValue = countWhitePixels ? 255 : 0;
+
+          int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+          int topCount = 0;
+          int bottomCount = 0;
+
+          byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+          bitmap.CopyPixels(pixelByteArray, stride, 0);
+
+          for (int column = 0; column < bitmap.PixelWidth; column++)
+          {
+              for (int row = 0; row < bitmap.PixelHeight; row++)
+              {
+                  int index = row * stride + 4 * column;
+                  var whiteBlack = Convert.ToByte(objectValue);
+
+                  int pixelValue = Convert.ToInt32(pixelByteArray[index]);
+
+                  if (pixelValue == whiteBlack)
+                  {
+                      if (row < bitmap.PixelHeight/2.0)
+                      {
+                          topCount++;
+                      }
+                      else
+                      {
+                          bottomCount++;
+                      }                      
+                  }
+              }
+          }
+
+          if (topCount < bottomCount)
+          {
+             return bitmap.Rotate(180);
+          }
+          else
+          {
+              return bitmap;
+          }
+      }
+
+
 
 
        public static void DrawGradientScaleBitmap(WriteableBitmap writeableBitmap)
