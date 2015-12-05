@@ -114,19 +114,19 @@ namespace FoodClassifier
          };
 
          var files = Directory.GetFiles( directory );
-         var elapsed = TimeSpan.Zero;
          using ( var sw = new StreamWriter( directory + @"\RESULTS.txt" ) )
          {
+            var numClassified = 0;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             foreach ( var file in files )
             {
-               var stopwatch = new Stopwatch();
-               stopwatch.Start();
                var extension = Path.GetExtension( file );
                if ( extension.ToLower() != ".jpg" )
                {
                   continue;
                }
-
+               
                var bitmap = new BitmapImage( new Uri( file, UriKind.Absolute ) );
 
                // give this directory to the bitmap operations class
@@ -162,9 +162,6 @@ namespace FoodClassifier
 
                var classifications = ClassifyBitmap( writeableBitmap, cvImage );
 
-               stopwatch.Stop();
-               elapsed = elapsed.Add( stopwatch.Elapsed );
-
                // Mark down where we were correct for recognition rate
                var fileName = Path.GetFileNameWithoutExtension( file );
                fileName = fileName + Path.GetExtension( file ).ToLower();
@@ -195,19 +192,25 @@ namespace FoodClassifier
                }
                sw.WriteLine( fileName + classificationString.ToLower() );
                Console.WriteLine( fileName + classificationString.ToLower() );
+               numClassified++;
             }
+            stopwatch.Stop();
 
             // Write the recognition rate scores
             var recognitionString = "";
-            for ( int i = 0; i < 13; i++ )
+            for ( int i = 0; i < 14; i++ )
             {
-               var recognitionRate = 0.5*( (double)score[i, 0]/numClassifications[i] + (double)score[i, 1]/(files.Length - numClassifications[i]) );
+               var recognitionRate = 0.5*( (double)score[i, 0]/numClassifications[i] + (double)score[i, 1]/(numClassified - numClassifications[i]) );
+               if ( FoodIgnoreList.Contains( i ) )
+               {
+                  recognitionRate = 0;
+               }
                recognitionString += Math.Round( recognitionRate, 2, MidpointRounding.AwayFromZero ) + " ";
             }
             sw.WriteLine( recognitionString );
             Console.WriteLine( recognitionString );
 
-            var timePerFile = (double)elapsed.Seconds/files.Length;
+            var timePerFile = Math.Round( (double)stopwatch.ElapsedMilliseconds/numClassified/1000, 2, MidpointRounding.AwayFromZero );
             sw.WriteLine( "Average processing time per file:" + timePerFile );
             Console.WriteLine( "Average processing time per file: " + timePerFile );
          }
