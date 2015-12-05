@@ -350,6 +350,8 @@ namespace BitmapLibrary
                            var orientedGradientBitmap = NormalizeBitmapSize(rotatedGradientBlobBitmap);
                            var orientedRealBitmap = NormalizeBitmapSize(rotatedRealBitmapRef);
 
+                           ApplyBlobMaskToOtherBitmaps(orientedBitmap, orientedGradientBitmap, orientedRealBitmap, blobColor);
+
                            string fileName1 = saveDirectory + "\\croppedBlob" + blobNumber + ".png";
 
                            ExtensionMethods.Save(orientedRealBitmap, fileName1);
@@ -361,6 +363,46 @@ namespace BitmapLibrary
            return writeableBitmap;
        }
 
+       public static void ApplyBlobMaskToOtherBitmaps(WriteableBitmap bitmap, WriteableBitmap gradientBitmapRef, 
+           WriteableBitmap realBitmapRef, System.Windows.Media.Color blobColor)
+       {
+           int stride = (bitmap.PixelWidth * bitmap.Format.BitsPerPixel + 7) / 8;
+
+           byte[] pixelByteArray = new byte[bitmap.PixelHeight * stride];
+           byte[] gradientByteArray = new byte[gradientBitmapRef.PixelHeight * stride];
+           byte[] realByteArray = new byte[realBitmapRef.PixelHeight * stride];
+
+           bitmap.CopyPixels(pixelByteArray, stride, 0);
+           gradientBitmapRef.CopyPixels(gradientByteArray, stride, 0);
+           realBitmapRef.CopyPixels(realByteArray, stride, 0);
+
+           for (int column = 0; column < bitmap.PixelWidth; column++)
+           {
+               for (int row = 0; row < bitmap.PixelHeight; row++)
+               {
+                   int index = row * stride + 4 * column;
+
+                   var pixelColor = new System.Windows.Media.Color();
+
+                   pixelColor = System.Windows.Media.Color.FromRgb(pixelByteArray[index + 2],
+                       pixelByteArray[index + 1], pixelByteArray[index]);
+
+                   if (pixelColor != blobColor)
+                   {
+                       gradientByteArray[index] = 0;
+                       gradientByteArray[index + 1] = 0;
+                       gradientByteArray[index + 2] = 0;
+
+                       realByteArray[index] = 0;
+                       realByteArray[index + 1] = 0;
+                       realByteArray[index + 2] = 0;
+                   }
+               }
+           }
+
+           gradientBitmapRef.WritePixels(new Int32Rect(0, 0, gradientBitmapRef.PixelWidth, gradientBitmapRef.PixelHeight), gradientByteArray, stride, 0);
+           realBitmapRef.WritePixels(new Int32Rect(0, 0, realBitmapRef.PixelWidth, realBitmapRef.PixelHeight), realByteArray, stride, 0);
+       }
        public static WriteableBitmap NormalizeBitmapSize(WriteableBitmap bitmap)
        {
 
